@@ -15,6 +15,16 @@ Según la matriz de asignación de la orientación, al equipo Bales le correspon
 
 La numeración coincide con el documento oficial de la CP4. Los incisos completos de cada ejercicio están en ese documento y se copian en el README de cada carpeta.
 
+## Entrega
+
+- **Fecha límite:** 30/10/2026
+- **Fichero:** `CP4_Bales.pdf`
+- **Dónde subirlo:** en el tópico *Evaluaciones* del grupo de IS en Telegram **y** en este repositorio.
+- **Portada (primera página) con:**
+  - el nombre del equipo;
+  - los integrantes, y al lado de cada uno el ejercicio y el inciso en que trabajó;
+  - la URL del repositorio del proyecto.
+
 ## Qué hay que resolver en cada ejercicio
 
 Cada ejercicio tiene cinco incisos:
@@ -31,10 +41,12 @@ El trabajo está dividido en issues, uno por inciso, con la etiqueta `ej-9` o `e
 
 ## Miembros
 
-| Nombre | GitHub |
-|---|---|
-| | @FontesHabana |
-| | @heilyrodriguez225 |
-| | @Mackandal04 |
-| | @QuiquiMatCom2004 |
-| | @solerch5510 |
+Esta tabla es la base de la portada del PDF. Cada uno completa su nombre y los incisos en que trabajó.
+
+| Nombre | GitHub | Ejercicio / inciso |
+|---|---|---|
+| | @FontesHabana | |
+| | @heilyrodriguez225 | |
+| | @Mackandal04 | |
+| | @QuiquiMatCom2004 | |
+| | @solerch5510 | |
