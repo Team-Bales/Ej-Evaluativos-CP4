@@ -45,7 +45,6 @@ Esta tabla es la base de la portada del PDF. Cada uno completa su nombre y los i
 
 | Nombre | GitHub | Ejercicio / inciso |
 |---|---|---|
-| | @FontesHabana | |
 | | @heilyrodriguez225 | |
 | | @Mackandal04 | |
 | | @QuiquiMatCom2004 | |
