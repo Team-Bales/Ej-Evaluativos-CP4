@@ -23,7 +23,11 @@ La numeración coincide con el documento oficial de la CP4. Los incisos completo
 - **Portada (primera página) con:**
   - el nombre del equipo;
   - los integrantes, y al lado de cada uno el ejercicio y el inciso en que trabajó;
-  - la URL del repositorio del proyecto.
+  - la URL de este repositorio: https://github.com/Team-Bales/Ej-Evaluativos-CP4
+
+## Lenguaje
+
+La implementación se hace en **C#** (.NET).
 
 ## Qué hay que resolver en cada ejercicio
 
