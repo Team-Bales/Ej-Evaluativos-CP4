@@ -10,7 +10,10 @@ Una plataforma de trading necesita notificar automáticamente a miles de cliente
 - [ ] **b) Implementación:** Implementa con 5 acciones, 1000 clientes y umbrales personalizados. Notificaciones por email, SMS y push.
 - [ ] **c) Análisis:** ¿Qué pasa si un cliente no puede ser notificado? ¿Cómo evitar bloquear el hilo principal? ¿Observer es síncrono o asíncrono?
 - [ ] **d) Rendimiento:** Evalúa el rendimiento con 1M de clientes. ¿Cómo cambia el orden de complejidad? Propón Observer con Thread Pool o Reactive Streams.
-- [ ] **e) Restricción:** El sistema debe garantizar entrega "at-least-once" y persistir notificaciones fallidas.
+
+## Restricción
+
+- [ ] El sistema debe garantizar entrega "at-least-once" y persistir notificaciones fallidas.
 
 ## Solución
 

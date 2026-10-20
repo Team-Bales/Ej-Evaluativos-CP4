@@ -31,17 +31,18 @@ La implementación se hace en **C#** (.NET).
 
 ## Qué hay que resolver en cada ejercicio
 
-Cada ejercicio tiene cinco incisos:
+Cada ejercicio tiene cuatro incisos (a–d) y una restricción adicional, igual que en el documento de la CP4:
 
 1. **Identificación del patrón:** identificar el patrón más adecuado, justificarlo con las características del problema y explicar la solución (clases que intervienen y relaciones entre ellas), incluyendo por qué no usar las alternativas que plantea el enunciado.
 2. **Implementación:** con los elementos mínimos que pide el enunciado.
 3. **Análisis / integración:** responder las preguntas de análisis o integrar con los patrones indicados.
 4. **Evaluación / comparación:** las métricas o comparaciones que pide el enunciado.
-5. **Restricción:** cumplir la restricción adicional del ejercicio.
+
+**Restricción** (no es un inciso; es un párrafo aparte en el documento): cumplir la restricción adicional del ejercicio.
 
 ## Reparto del trabajo
 
-El trabajo está dividido en issues, uno por inciso, con la etiqueta `ej-9` o `ej-12`. Cada miembro se asigna los suyos.
+El trabajo está dividido en issues, uno por inciso y uno por restricción, con la etiqueta `ej-9` o `ej-12`. Cada miembro se asigna los suyos.
 
 ## Miembros
 

@@ -10,7 +10,10 @@ Un banco necesita procesar diferentes tipos de transacciones (depósito, retiro,
 - [ ] **b) Implementación:** Implementa con 4 tipos de elementos (CuentaAhorro, CuentaCorriente, CuentaInversión, CuentaEmpresarial) y 3 operaciones (EjecutarTransacción, RevertirTransacción, AuditarTransacción). Cada operación debe comportarse de manera diferente según el tipo de cuenta.
 - [ ] **c) Integración:** Integra con Composite para manejar grupos de cuentas (ej. "Cuentas de una sucursal") y con Iterator para recorrer las transacciones de una cuenta. ¿Cómo afecta el Composite a la ejecución de operaciones sobre grupos?
 - [ ] **d) Comparación:** Visitor vs. añadir métodos a cada elemento. ¿Cuándo conviene cada uno? Usa la métrica de "número de cambios por nueva operación" y "número de cambios por nuevo tipo de elemento". ¿Qué pasa si el número de operaciones crece mucho más rápido que el número de tipos de cuenta?
-- [ ] **e) Restricción:** Las operaciones deben poder ejecutarse en paralelo sobre diferentes cuentas (considera concurrencia y estado mutable del Visitor). Además, el sistema debe garantizar que las transacciones sobre una misma cuenta sean atómicas y consistentes (¿cómo lo resuelves con el patrón elegido?).
+
+## Restricción
+
+- [ ] Las operaciones deben poder ejecutarse en paralelo sobre diferentes cuentas (considera concurrencia y estado mutable del Visitor). Además, el sistema debe garantizar que las transacciones sobre una misma cuenta sean atómicas y consistentes (¿cómo lo resuelves con el patrón elegido?).
 
 ## Solución
 
