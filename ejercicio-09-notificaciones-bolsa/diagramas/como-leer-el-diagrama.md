@@ -37,7 +37,7 @@ A partir de ahí:
 - **`CanalEmail`, `CanalSms` y `CanalPush`** implementan esa interfaz y comparten un único triángulo de herencia. Funciona como un **Strategy** (por eso lleva esa etiqueta): el observador decide **si** hay que avisar y el canal decide **cómo** se entrega el aviso.
 - **`DespachadorNotificaciones`** separa la detección del evento del envío real:
   - **envía por** los canales (1 → 1..\*);
-  - **guarda en** el **`IRepositorioNotificaciones`** (1 → 1).
+  - **guarda en** el **`IRepositorioNotificaciones`** (1 → 1), que **`RepositorioMemoria`** implementa en memoria para el inciso b.
 
   El inciso c usará el despachador para el envío asíncrono, y la restricción lo usará para la persistencia y los reintentos.
 

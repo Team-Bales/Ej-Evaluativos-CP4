@@ -38,7 +38,7 @@ El libro de la «banda de los cuatro» (*Gang of Four*, GoF), la referencia clá
 ### Clases de apoyo (fuera de los roles de Observer)
 
 - **Canales (`CanalEmail`, `CanalSms`, `CanalPush`)**: formas de envío intercambiables detrás de `ICanalNotificacion`. Funciona como un **Strategy**, porque cada cliente elige su canal. Los canales **no son observadores**: el observador decide *si* hay que avisar, y el canal decide *cómo* se entrega el aviso.
-- **`DespachadorNotificaciones`**: separa la detección del evento del envío real. Se encarga de que el envío sea asíncrono (inciso c), de los reintentos y de la persistencia (restricción). En este inciso solo se presenta el diseño; se implementa en los incisos y en la restricción que lo usan.
+- **`DespachadorNotificaciones`**: separa la detección del evento del envío real. Se encarga de que el envío sea asíncrono (inciso c), de los reintentos y de la persistencia (restricción). En este inciso solo se presenta el diseño; se implementa en los incisos y en la restricción que lo usan. Guarda las notificaciones en un `IRepositorioNotificaciones`; `RepositorioMemoria` es la implementación en memoria que usa el inciso b.
 
 ### Decisiones de diseño
 

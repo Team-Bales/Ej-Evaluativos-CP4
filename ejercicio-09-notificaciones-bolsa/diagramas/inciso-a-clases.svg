@@ -232,4 +232,13 @@
 <path d="M653.2,1500.2 L664,1495 L653.2,1489.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
 <text x="676" y="1500" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">dependencia (lo crea o lo usa)</text>
 <text x="44" y="1525" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">Las etiquetas de color indican el rol de cada clase en el patrón (GoF). Colores: azul = Observer · ámbar = datos que viajan · verde = entrega · gris = enumeración.</text>
+<g>
+<rect x="833" y="1294" width="240" height="64" rx="8" fill="#000" opacity="0.06"/>
+<rect x="830" y="1290" width="240" height="64" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M830,1330 V1298 Q830,1290 838,1290 H1062 Q1070,1290 1070,1298 V1330 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="950.0" y="1316" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">RepositorioMemoria</text>
+<line x1="830" y1="1342" x2="1070" y2="1342" stroke="#2f8a55" stroke-width="1.2"/>
+</g>
+<path d="M950.0,1290 L950.0,1246" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M957.7,1246.0 L950.0,1232 L942.3,1246.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
 </svg>

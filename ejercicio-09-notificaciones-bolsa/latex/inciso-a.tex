@@ -93,7 +93,9 @@ implementa de forma explícita para que se vean los roles del patrón.
   \item \textbf{\texttt{DespachadorNotificaciones}}: separa la detección del evento del envío
         real. Se encarga de que el envío sea asíncrono (inciso c), de los reintentos y de la
         persistencia (restricción). En este inciso solo se presenta el diseño; se implementa
-        en los incisos y en la restricción que lo usan.
+        en los incisos y en la restricción que lo usan. Guarda las notificaciones en un
+        \texttt{IRepositorioNotificaciones}; \texttt{RepositorioMemoria} es la implementación
+        en memoria que usa el inciso b.
 \end{itemize}
 
 \paragraph{Decisiones de diseño.}
