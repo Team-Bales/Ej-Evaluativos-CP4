@@ -51,7 +51,7 @@ Esta tabla es la base de la portada del PDF. Cada uno completa su nombre y los i
 
 | Nombre | GitHub | Ejercicio / inciso |
 |---|---|---|
-| | @heilyrodriguez225 | |
+| Heily Rodríguez Rodríguez | @heilyrodriguez225 | Ej. 9 – inciso a |
 | | @Mackandal04 | |
 | | @QuiquiMatCom2004 | |
 | | @solerch5510 | |
