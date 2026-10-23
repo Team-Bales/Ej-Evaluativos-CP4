@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Bolsa.Notificaciones.Tests/Bolsa.Notificaciones.Tests.csproj" />
+  <Project Path="Bolsa.Notificaciones/Bolsa.Notificaciones.csproj" />
+</Solution>
