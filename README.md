@@ -19,6 +19,7 @@ La numeración coincide con el documento oficial de la CP4. Los incisos completo
 
 - **Fecha límite:** 30/10/2026
 - **Fichero:** `CP4_Bales.pdf`
+- **Formato:** LaTeX. Cada issue entrega su solución como un fragmento `.tex`, y el PDF se genera compilando [`latex/main.tex`](latex/main.tex). Las instrucciones y las reglas están en [`latex/README.md`](latex/README.md).
 - **Dónde subirlo:** en el tópico *Evaluaciones* del grupo de IS en Telegram **y** en este repositorio.
 - **Portada (primera página) con:**
   - el nombre del equipo;

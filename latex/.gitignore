@@ -1,0 +1,8 @@
+# Ficheros intermedios de LaTeX (el PDF final CP4_Bales.pdf sí se sube, ver issue #11)
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz

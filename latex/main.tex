@@ -1,0 +1,59 @@
+% Documento principal de la entrega. Genera CP4_Bales.pdf:
+%   cd latex && latexmk -pdf -jobname=CP4_Bales main.tex
+
+\documentclass[11pt,a4paper]{article}
+\input{preambulo}
+
+\begin{document}
+
+% ---------- Portada ----------
+% Debe coincidir con la tabla de miembros del README principal.
+\begin{titlepage}
+  \centering
+  {\large Ingeniería de Software\par}
+  \vspace{1.5cm}
+  {\Huge\bfseries Clase Práctica 4\par}
+  \vspace{0.4cm}
+  {\LARGE Patrones de diseño orientado a objetos\par}
+  \vspace{2cm}
+  {\Large Equipo 7: \textbf{Bales}\par}
+  \vspace{1.2cm}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X l >{\raggedright\arraybackslash}X}
+    \toprule
+    \textbf{Integrante} & \textbf{GitHub} & \textbf{Ejercicio / inciso} \\
+    \midrule
+     & @heilyrodriguez225 & \\
+     & @Mackandal04 & \\
+     & @QuiquiMatCom2004 & \\
+     & @solerch5510 & \\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  {\url{https://github.com/Team-Bales/Ej-Evaluativos-CP4}\par}
+  \vspace{0.3cm}
+  {30/10/2026\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ---------- Ejercicio 9 ----------
+% Mismo orden y numeración que el documento de la CP4.
+\section{Ejercicio 9: Sistema de Notificaciones de Bolsa}
+\inciso{a) Patrón}{ejercicio-09-notificaciones-bolsa/latex/inciso-a.tex}
+\inciso{b) Implementación}{ejercicio-09-notificaciones-bolsa/latex/inciso-b.tex}
+\inciso{c) Análisis}{ejercicio-09-notificaciones-bolsa/latex/inciso-c.tex}
+\inciso{d) Rendimiento}{ejercicio-09-notificaciones-bolsa/latex/inciso-d.tex}
+\inciso{Restricción}{ejercicio-09-notificaciones-bolsa/latex/restriccion.tex}
+
+\newpage
+
+% ---------- Ejercicio 12 ----------
+\section{Ejercicio 12: Sistema de Procesamiento de Transacciones Bancarias}
+\inciso{a) Patrón}{ejercicio-12-transacciones-bancarias/latex/inciso-a.tex}
+\inciso{b) Implementación}{ejercicio-12-transacciones-bancarias/latex/inciso-b.tex}
+\inciso{c) Integración}{ejercicio-12-transacciones-bancarias/latex/inciso-c.tex}
+\inciso{d) Comparación}{ejercicio-12-transacciones-bancarias/latex/inciso-d.tex}
+\inciso{Restricción}{ejercicio-12-transacciones-bancarias/latex/restriccion.tex}
+
+\end{document}
