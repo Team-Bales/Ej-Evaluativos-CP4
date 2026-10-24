@@ -1,0 +1,263 @@
+% Ejercicio 9, inciso b) — issue #2. Mismo contenido que inciso-b.md.
+% Fragmento sin preámbulo: lo incluye latex/main.tex, que ya pone el título del inciso.
+
+\begin{quote}
+\itshape
+Implementa con 5 acciones, 1000 clientes y umbrales personalizados. Notificaciones por
+email, SMS y push.
+\end{quote}
+
+La implementación sigue el diseño del inciso a: mismas clases y mismas relaciones que el
+diagrama de clases (figura~\ref{fig:e9-clases}). El código completo está en la carpeta
+\texttt{ejercicio-09-notificaciones-bolsa/codigo/} del repositorio; aquí se muestran solo
+los fragmentos relevantes.
+
+\subsubsection{Cómo ejecutarlo}
+
+Requisito: SDK de .NET~10. Desde \texttt{ejercicio-09-notificaciones-bolsa/codigo/}:
+
+\begin{lstlisting}[language={}, numbers=none, basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true]
+dotnet run --project Bolsa.Notificaciones   # la simulación
+dotnet test                                  # las pruebas unitarias (xUnit)
+\end{lstlisting}
+
+Hay que indicar \texttt{-{}-project} porque la carpeta tiene dos proyectos (el programa y
+sus pruebas). No hace falta ningún paso manual: \texttt{dotnet} descarga xUnit la primera vez.
+
+\subsubsection{Estructura del código}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{7.2cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Fichero} & \textbf{Clase del diagrama y rol} \\
+\midrule
+\texttt{Observer/ISujetoPrecio.cs} & \texttt{ISujetoPrecio}: Subject \\
+\texttt{Observer/Accion.cs} & \texttt{Accion}: ConcreteSubject \\
+\texttt{Observer/IObservadorPrecio.cs} & \texttt{IObservadorPrecio}: Observer \\
+\texttt{Observer/AlertaUmbral.cs} & \texttt{AlertaUmbral}: ConcreteObserver; aplica la regla de disparo \\
+\texttt{Observer/CambioPrecio.cs},\newline\texttt{Observer/Direccion.cs} & Dato que viaja (modelo push) y dirección del cruce \\
+\texttt{Entrega/Cliente.cs},\newline\texttt{Entrega/Notificacion.cs} & Datos del cliente y del aviso \\
+\texttt{Entrega/ICanalNotificacion.cs} & \texttt{ICanalNotificacion}: Strategy de entrega \\
+\texttt{Entrega/Canal\{Email,Sms,Push\}.cs} & Los 3 canales; el envío se simula en la consola \\
+\texttt{Entrega/DespachadorNotificaciones.cs} & Entrega por el canal del cliente y guarda en el repositorio \\
+\texttt{Entrega/IRepositorioNotificaciones.cs},\newline\texttt{Entrega/RepositorioMemoria.cs} & Registro de las notificaciones entregadas \\
+\texttt{Program.cs} & La simulación \\
+\texttt{Bolsa.Notificaciones.Tests/} & Pruebas unitarias \\
+\bottomrule
+\end{tabularx}
+\caption{Ficheros del código y su correspondencia con el diagrama.}
+\end{table}
+
+\subsubsection{Regla de disparo}
+
+Una alerta \textbf{solo notifica cuando el precio cruza su umbral} en su dirección, no en
+cada cambio mientras el precio siga del otro lado:
+
+\begin{itemize}
+  \item \texttt{Sube}: precio anterior $\le$ umbral \textbf{y} precio nuevo $>$ umbral.
+  \item \texttt{Baja}: precio anterior $\ge$ umbral \textbf{y} precio nuevo $<$ umbral.
+\end{itemize}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={\texttt{AlertaUmbral}: el observador decide si el cambio cruza su umbral.}]
+public void Actualizar(CambioPrecio cambio)
+{
+    if (!CruzaElUmbral(cambio))
+    {
+        return;
+    }
+
+    string verbo = Direccion == Direccion.Sube ? "subió por encima de" : "bajó por debajo de";
+    string mensaje = $"{cambio.Simbolo} {verbo} su umbral {Formato(Umbral)}: " +
+                     $"{Formato(cambio.PrecioAnterior)} → {Formato(cambio.PrecioNuevo)}";
+
+    _despachador.Encolar(new Notificacion(Guid.NewGuid(), Cliente, mensaje));
+}
+
+private bool CruzaElUmbral(CambioPrecio cambio) => Direccion switch
+{
+    Direccion.Sube => cambio.PrecioAnterior <= Umbral && cambio.PrecioNuevo > Umbral,
+    Direccion.Baja => cambio.PrecioAnterior >= Umbral && cambio.PrecioNuevo < Umbral,
+    _ => false,
+};
+\end{lstlisting}
+
+\paragraph{Por qué esta regla.}
+\begin{itemize}
+  \item \textbf{Evita avisos repetidos.} Si se notificara siempre que el precio esté por
+        encima del umbral, un cliente recibiría un aviso en cada tick mientras dure la
+        subida. Con el cruce recibe uno solo, en el momento en que ocurre, que es lo que pide
+        ``notificaciones inmediatas'' cuando ``alcanzan precios específicos''.
+  \item \textbf{Se rearma sola.} Si el precio vuelve al otro lado y cruza otra vez, hay un
+        aviso nuevo: es otro evento. No hace falta guardar estado en la alerta, porque
+        \texttt{CambioPrecio} trae el precio anterior y el nuevo (modelo push).
+  \item \textbf{Es decisión del observador, no de la acción.} La acción avisa a todas sus
+        alertas en cada cambio, y cada \texttt{AlertaUmbral} decide si el cambio cruza
+        \emph{su} umbral. Así la acción no necesita conocer los umbrales.
+\end{itemize}
+
+Si el precio no cambia, \texttt{Accion.ActualizarPrecio} no notifica: no hay evento.
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={\texttt{Accion}: el sujeto notifica a todos sus observadores en cada cambio de precio.}]
+public void ActualizarPrecio(decimal precioNuevo)
+{
+    decimal precioAnterior = Precio;
+    if (precioNuevo == precioAnterior)
+    {
+        return;
+    }
+
+    Precio = precioNuevo;
+    Notificar(new CambioPrecio(Simbolo, precioAnterior, precioNuevo, DateTimeOffset.Now));
+}
+
+public void Notificar(CambioPrecio cambio)
+{
+    foreach (IObservadorPrecio observador in _observadores)
+    {
+        observador.Actualizar(cambio);
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Datos de la simulación}
+
+\begin{itemize}
+  \item \textbf{5 acciones}, cada una un Subject independiente con su propia lista de
+        observadores: AAPL (150), MSFT (310), GOOG (140), AMZN (180) y TSLA (250).
+  \item \textbf{1000 clientes} generados por código. El canal se reparte por turno (email,
+        SMS, push) y cada cliente se suscribe a \textbf{1 o 2 acciones}, alternando entre
+        \texttt{Sube} y \texttt{Baja}. En total hay \textbf{1500 alertas}.
+  \item \textbf{Umbrales personalizados:} precio inicial $\pm$ (0,1\,\% $+$ 0,12\,\%
+        $\times$ orden de llegada), distinto para cada alerta de la misma acción y
+        dirección. El programa comprueba que no se repite ninguno.
+  \item \textbf{10 ticks de precios:} en los ticks 1 a 9 cada precio varía hasta
+        $\pm$1,5\,\%; el tick 10 simula un evento de mercado con saltos fuertes (+9\,\%,
+        $-$7\,\%, +12\,\%, $-$5\,\% y +8\,\%).
+  \item \textbf{Desuscripción:} después del tick 8, los primeros 25 clientes se desuscriben
+        de todas sus alertas.
+  \item \textbf{Semilla fija} (\texttt{20261016}): la simulación es reproducible, da los
+        mismos precios y avisos en cada ejecución.
+\end{itemize}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={\texttt{Program.cs}: cada alerta es un observador con su propio umbral.}]
+decimal porcentaje = 0.1m + 0.12m * orden;
+decimal umbral = Math.Round(
+    direccion == Direccion.Sube
+        ? accion.Precio * (1 + porcentaje / 100m)
+        : accion.Precio * (1 - porcentaje / 100m),
+    2);
+
+AlertaUmbral alerta = new(cliente, umbral, direccion, despachador);
+accion.Suscribir(alerta);
+\end{lstlisting}
+
+\subsubsection{Resultados}
+
+Cada línea \texttt{[CANAL → contacto]} es una notificación entregada. Aparece debajo del
+cambio de precio que la dispara, en el mismo tick:
+
+\begin{lstlisting}[language={}, numbers=none, basicstyle=\ttfamily\scriptsize, columns=fullflexible, keepspaces=true]
+--- Tick 1 ---
+  AAPL: 150.00 → 149.44
+[EMAIL → cliente0006@correo.cu] AAPL bajó por debajo de su umbral 149.85: 150.00 → 149.44
+[SMS → +53 50000016] AAPL bajó por debajo de su umbral 149.67: 150.00 → 149.44
+[PUSH → dispositivo-0026] AAPL bajó por debajo de su umbral 149.49: 150.00 → 149.44
+  MSFT: 310.00 → 306.49
+[PUSH → dispositivo-0002] MSFT bajó por debajo de su umbral 309.69: 310.00 → 306.49
+...
+  ... 25 clientes se desuscriben (37 alertas quitadas).
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Resultado} & \textbf{Valor} \\
+\midrule
+Notificaciones entregadas & 417 de 1500 alertas \\
+Clientes notificados & 306 de 1000 \\
+\addlinespace
+Avisos por email / SMS / push & 142 / 140 / 135 \\
+\addlinespace
+Avisos de AAPL / MSFT / GOOG / AMZN / TSLA & 94 / 70 / 106 / 84 / 63 \\
+\addlinespace
+Avisos a los 25 desuscritos: antes / después & 30 / \textbf{0} \\
+Umbrales repetidos & ninguno \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de la simulación.}
+\end{table}
+
+Lo que muestra:
+\begin{itemize}
+  \item \textbf{Solo se notifica a quien cruzó su umbral:} 417 avisos de 1500 alertas, y
+        solo 306 de los 1000 clientes recibieron alguno. Los umbrales más alejados del precio
+        no se alcanzan.
+  \item \textbf{Los tres canales funcionan:} 142 avisos por email, 140 por SMS y 135 por push.
+  \item \textbf{La desuscripción funciona:} los 25 clientes desuscritos recibieron 30 avisos
+        antes y \textbf{0 después}.
+  \item \textbf{El aviso es inmediato:} cada notificación sale en el mismo tick del cruce. En
+        los ticks normales hay entre 11 y 37 avisos; en el tick 10, con los saltos fuertes, 231.
+\end{itemize}
+
+\subsubsection{Pruebas unitarias}
+
+\texttt{dotnet test} ejecuta \textbf{11 pruebas, todas correctas}:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4cm}}
+\toprule
+\textbf{Qué comprueba} & \textbf{Criterio} \\
+\midrule
+Acercarse sin cruzar no avisa; cruzar al alza avisa una vez y lo guarda & Notifica al cruzar \\
+Lo mismo a la baja & Notifica al cruzar \\
+Subir sin llegar al umbral no avisa & No notifica por debajo \\
+Tres subidas seguidas por encima dan un solo aviso & Regla de disparo \\
+Tras desuscribirse, un nuevo cruce ya no avisa & Desuscripción \\
+Un cambio avisa a todas las alertas cuyo umbral cruza & Uno-a-muchos \\
+Email, SMS y push entregan el mensaje al contacto de su cliente (3 pruebas) & Cada canal recibe su mensaje \\
+El despachador usa el canal de cada cliente & Cada canal recibe su mensaje \\
+Toda notificación entregada queda en el repositorio & --- \\
+\bottomrule
+\end{tabularx}
+\caption{Pruebas unitarias (xUnit).}
+\end{table}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={Prueba de la desuscripción.}]
+[Fact]
+public void NoNotifica_DespuesDeDesuscribirse()
+{
+    (Accion accion, AlertaUmbral alerta, CanalDePrueba canal, _) =
+        CrearEscenario(150.00m, 152.00m, Direccion.Sube);
+
+    accion.ActualizarPrecio(153.00m);
+    Assert.Single(canal.Enviadas);
+
+    accion.Desuscribir(alerta);
+
+    accion.ActualizarPrecio(151.00m); // baja y vuelve a cruzar el umbral al alza
+    accion.ActualizarPrecio(152.50m);
+
+    Assert.Single(canal.Enviadas); // solo el aviso anterior a la desuscripción
+}
+\end{lstlisting}
+
+\subsubsection{Decisiones de esta implementación}
+
+\begin{itemize}
+  \item \textbf{El despachador entrega de forma síncrona.} \texttt{Encolar} deja la
+        notificación en la cola (\texttt{Channel<Notificacion>}) y la procesa al momento. Así
+        la simulación es determinista y las pruebas no dependen de hilos. El inciso c
+        convierte ese envío en asíncrono sin cambiar las alertas, que solo encolan.
+  \item \textbf{El repositorio está en memoria.} \texttt{RepositorioMemoria} registra las
+        notificaciones entregadas. La restricción (E9-R) añadirá una implementación
+        persistente y los reintentos; el despachador no cambia, porque solo conoce
+        \texttt{IRepositorioNotificaciones}.
+  \item \textbf{El envío es simulado:} cada canal escribe el aviso en la consola con su tipo
+        y el contacto del cliente.
+\end{itemize}

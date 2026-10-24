@@ -7,7 +7,7 @@ Una plataforma de trading necesita notificar automáticamente a miles de cliente
 ## Incisos
 
 - [x] **a) Patrón:** ([respuesta](inciso-a.md)) Identifica el patrón de diseño más adecuado, justifica tu selección basándote en las características del problema y explica la propuesta de solución considerando las clases que intervienen y las relaciones entre ellas. ¿Por qué no usar Mediator o polling?
-- [ ] **b) Implementación:** Implementa con 5 acciones, 1000 clientes y umbrales personalizados. Notificaciones por email, SMS y push.
+- [x] **b) Implementación:** ([respuesta](inciso-b.md)) Implementa con 5 acciones, 1000 clientes y umbrales personalizados. Notificaciones por email, SMS y push.
 - [ ] **c) Análisis:** ¿Qué pasa si un cliente no puede ser notificado? ¿Cómo evitar bloquear el hilo principal? ¿Observer es síncrono o asíncrono?
 - [ ] **d) Rendimiento:** Evalúa el rendimiento con 1M de clientes. ¿Cómo cambia el orden de complejidad? Propón Observer con Thread Pool o Reactive Streams.
 
@@ -18,3 +18,15 @@ Una plataforma de trading necesita notificar automáticamente a miles de cliente
 ## Solución
 
 - a) [Identificación del patrón](inciso-a.md)
+- b) [Implementación](inciso-b.md): código en [`codigo/`](codigo/)
+
+### Cómo ejecutar el código
+
+Requisito: SDK de .NET 10. Desde [`codigo/`](codigo/):
+
+```sh
+dotnet run --project Bolsa.Notificaciones   # la simulación (5 acciones, 1000 clientes)
+dotnet test                                  # las pruebas unitarias (xUnit)
+```
+
+Hay que indicar `--project` porque la carpeta tiene dos proyectos (el programa y sus pruebas). La regla de disparo y los resultados están explicados en el [inciso b](inciso-b.md#regla-de-disparo).
