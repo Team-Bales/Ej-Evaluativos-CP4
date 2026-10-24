@@ -32,8 +32,8 @@ public sealed class CalcularIntereses : IVisitanteCuenta
     public void Visitar(CuentaCorriente cuenta) =>
         Anotar(cuenta, cuenta.Saldo < 0m ? -Mensual(-cuenta.Saldo, TasaSobregiro) : 0m);
 
-    /// <summary>Inversión: 6 % anual sobre el saldo.</summary>
-    public void Visitar(CuentaInversion cuenta) => Anotar(cuenta, Mensual(cuenta.Saldo, TasaInversion));
+    /// <summary>Inversión: 6 % anual sobre el saldo; un saldo negativo (por una reversión) no genera interés.</summary>
+    public void Visitar(CuentaInversion cuenta) => Anotar(cuenta, Mensual(Math.Max(cuenta.Saldo, 0m), TasaInversion));
 
     /// <summary>Empresarial: 1 % anual, solo sobre el saldo que pase del exento.</summary>
     public void Visitar(CuentaEmpresarial cuenta) =>

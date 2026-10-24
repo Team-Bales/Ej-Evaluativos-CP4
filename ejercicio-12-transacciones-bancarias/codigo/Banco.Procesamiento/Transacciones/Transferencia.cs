@@ -5,7 +5,9 @@ namespace Banco.Procesamiento.Transacciones;
 /// <summary>
 /// Transferencia: un débito en la cuenta de origen y un crédito en la de
 /// destino. Es la transacción que afecta a dos cuentas, por eso es la que
-/// necesita «todo o nada» (ProcesadorTransacciones).
+/// necesita «todo o nada» (ProcesadorTransacciones). Una transferencia a la
+/// misma cuenta la rechaza el constructor de Transaccion: como mucho un
+/// movimiento por cuenta.
 /// </summary>
 public sealed class Transferencia : Transaccion
 {
@@ -14,11 +16,6 @@ public sealed class Transferencia : Transaccion
         : base(usuario, fecha, autorizadaPor,
                [new Movimiento(origen, Naturaleza.Debito, monto), new Movimiento(destino, Naturaleza.Credito, monto)])
     {
-        if (origen == destino)
-        {
-            throw new ArgumentException("La cuenta de origen y la de destino deben ser distintas.", nameof(destino));
-        }
-
         Origen = origen;
         Destino = destino;
         Monto = monto;

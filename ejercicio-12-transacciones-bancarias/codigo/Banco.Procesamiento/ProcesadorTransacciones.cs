@@ -6,8 +6,8 @@ namespace Banco.Procesamiento;
 
 /// <summary>
 /// Client (GoF): crea el visitante de cada operación y lo pasa por las cuentas
-/// de la transacción, llamando a Aceptar en cada una. Solo conoce ICuenta: no
-/// sabe qué tipos de cuenta hay ni cuáles son sus reglas.
+/// de la transacción, llamando a Aceptar en cada una. Para pasar el visitante
+/// solo usa ICuenta: no sabe qué tipos de cuenta hay ni cuáles son sus reglas.
 /// Garantiza «todo o nada»: si una cuenta rechaza su movimiento, revierte con
 /// RevertirTransaccion las que ya lo habían aplicado (en una transferencia, el
 /// débito ya hecho cuando falla el crédito).

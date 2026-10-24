@@ -21,7 +21,9 @@ public sealed class TransaccionTests
     {
         CuentaAhorro cuenta = Escenario.Ahorro();
 
-        Assert.Throws<ArgumentException>(() => new TransaccionConDosMovimientos(cuenta));
+        ArgumentException error = Assert.Throws<ArgumentException>(() => new TransaccionConDosMovimientos(cuenta));
+
+        Assert.Equal("movimientos", error.ParamName);
     }
 
     [Fact]
@@ -29,7 +31,10 @@ public sealed class TransaccionTests
     {
         CuentaAhorro cuenta = Escenario.Ahorro();
 
-        Assert.Throws<ArgumentException>(() => new Transferencia(cuenta, cuenta, 10.00m, Escenario.Usuario, Escenario.Hoy));
+        ArgumentException error = Assert.Throws<ArgumentException>(
+            () => new Transferencia(cuenta, cuenta, 10.00m, Escenario.Usuario, Escenario.Hoy));
+
+        Assert.Equal("movimientos", error.ParamName); // la rechaza la regla general: un movimiento por cuenta
     }
 
     [Fact]
@@ -37,6 +42,8 @@ public sealed class TransaccionTests
     {
         CuentaAhorro cuenta = Escenario.Ahorro();
 
-        Assert.Throws<ArgumentException>(() => Escenario.NuevoDeposito(cuenta, 0.005m));
+        ArgumentException error = Assert.Throws<ArgumentException>(() => Escenario.NuevoDeposito(cuenta, 0.005m));
+
+        Assert.Equal("monto", error.ParamName);
     }
 }

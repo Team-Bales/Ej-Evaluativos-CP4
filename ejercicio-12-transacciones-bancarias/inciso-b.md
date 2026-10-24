@@ -50,7 +50,9 @@ Las reglas de negocio son inventadas, pero explícitas: cada una está documenta
 En las cuatro cuentas se cumple además lo siguiente:
 
 - **Revertir restaura exactamente el estado anterior**, saldo y contadores, porque aplica la operación inversa del `Asiento` que dejó la ejecución (inciso a). La única excepción es deliberada: si se revierte un débito de ahorro de un mes que ya terminó, el contador del mes en curso no cambia.
+- **Simplificación de la cuenta de ahorro:** solo lleva el conteo del mes más reciente, así que se supone que las transacciones llegan en orden de fecha.
 - **Auditar no modifica la cuenta.** Por cada cuenta genera un `RegistroAuditoria` con quién pidió la transacción (`Usuario`), qué se pidió (`Descripcion`), cuándo (`Fecha`) y el resultado (`Estado`: aplicada, revertida o no aplicada), además de si lo que la transacción le hizo a la cuenta cumple las reglas de su tipo.
+- **El estado es por cuenta, no por transacción.** `Revertida` incluye la compensación automática del «todo o nada»: en una transferencia rechazada, la cuenta que alcanzó a aplicar el débito queda como `Revertida` (con el rastro de la anulación, como un asiento contable de anulación) y la otra como `NoAplicada`.
 - **La auditoría juzga la transacción, no el estado actual de la cuenta.** Revisa lo que dice el asiento: el cargo cobrado, la autorización y el saldo en que la transacción (o su reversión) dejó la cuenta. Una transacción correcta sigue siendo conforme aunque después otras cambien la cuenta.
 
 ### Ejemplo: `EjecutarTransaccion` en una cuenta corriente
@@ -77,10 +79,10 @@ public void Visitar(CuentaCorriente cuenta)
 }
 ```
 
-El método recibe una `CuentaCorriente` y no una cuenta genérica: lo eligió el doble despacho. Por eso puede leer `LimiteSobregiro` y `CargoPorSobregiro` sin preguntar por el tipo ni hacer un cast. Ningún visitante usa `is`, `switch` ni casts por tipo de cuenta; se puede comprobar con:
+El método recibe una `CuentaCorriente` y no una cuenta genérica: lo eligió el doble despacho. Por eso puede leer `LimiteSobregiro` y `CargoPorSobregiro` sin preguntar por el tipo ni hacer un cast. Ningún visitante usa `is`, `switch` ni casts por tipo de cuenta. Se puede comprobar con la siguiente orden, que excluye los comentarios de documentación (`///`): están en español, y algunas versiones de `grep` encuentran «as» dentro de «así».
 
 ```sh
-grep -rnE "\bis\b|\bswitch\b|\bas\b" Banco.Procesamiento/Visitantes/   # no devuelve nada
+grep -rnE "\b(is|switch|as)\b" Banco.Procesamiento/Visitantes/ --include='*.cs' | grep -v "///"   # no devuelve nada
 ```
 
 Ningún `Visitar` es una copia de otro: cada uno aplica la regla de su cuenta. Las partes comunes (aplicar el asiento y exigir saldo) son métodos privados del visitante (`Aplicar`, `ExigirSaldo`).
@@ -128,9 +130,9 @@ public ResultadoTransaccion Ejecutar(Transaccion transaccion)
 
 | Cuenta | Interés del mes |
 |---|---|
-| Ahorro | 3 % anual sobre el saldo |
+| Ahorro | 3 % anual sobre el saldo positivo |
 | Corriente | No paga intereses; si está en sobregiro, cobra el 18 % anual sobre lo que debe |
-| Inversión | 6 % anual sobre el saldo |
+| Inversión | 6 % anual sobre el saldo positivo |
 | Empresarial | 1 % anual, solo sobre lo que pase de 20 000 |
 
 ```csharp
@@ -173,7 +175,7 @@ foreach (Cuenta cuenta in cuentas)
 
 ## Pruebas
 
-`dotnet test` ejecuta **45 pruebas xUnit**, todas correctas. Para cada combinación de cuenta y operación (4 × 3) hay al menos una prueba:
+`dotnet test` ejecuta **46 pruebas xUnit**, todas correctas. Para cada combinación de cuenta y operación (4 × 3) hay al menos una prueba:
 
 | Cuenta | Ejecutar | Ejecutar y luego revertir | Auditar |
 |---|---|---|---|
@@ -193,4 +195,4 @@ Cada prueba de «ejecutar y luego revertir» compara el saldo **y** los contador
   - un depósito ya gastado se revierte igual, y la auditoría lo marca como no conforme.
 - **`TransaccionTests`** (3 pruebas): como mucho un movimiento por cuenta, ninguna transferencia a la misma cuenta y ningún monto con fracciones de centavo.
 - **`DobleDespachoTests`**: a través de `ICuenta`, `Aceptar` llama al `Visitar` de la clase concreta.
-- **`CalcularInteresesTests`**: la operación nueva aplica la regla de cada cuenta y no modifica nada.
+- **`CalcularInteresesTests`** (3 pruebas): la operación nueva aplica la regla de cada cuenta, no da interés sobre un saldo negativo y no modifica nada.

@@ -18,7 +18,11 @@ public sealed class CuentaAhorro : Cuenta
     /// <summary>Débitos permitidos en un mes (retiros, transferencias salientes y pagos).</summary>
     public int LimiteRetirosMensuales { get; }
 
-    /// <summary>Débitos aplicados en MesDeRetiros. Un débito de un mes nuevo empieza la cuenta de cero.</summary>
+    /// <summary>
+    /// Débitos aplicados en MesDeRetiros. Un débito de un mes nuevo empieza la
+    /// cuenta de cero. Simplificación: solo se lleva el conteo del mes más
+    /// reciente, así que se supone que las transacciones llegan en orden de fecha.
+    /// </summary>
     public int RetirosDelMes { get; internal set; }
 
     /// <summary>Mes al que corresponde RetirosDelMes (su primer día).</summary>

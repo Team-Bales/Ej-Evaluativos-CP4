@@ -1,4 +1,5 @@
 using Banco.Procesamiento.Cuentas;
+using Banco.Procesamiento.Transacciones;
 using Banco.Procesamiento.Visitantes;
 
 namespace Banco.Procesamiento.Tests;
@@ -29,6 +30,21 @@ public sealed class CalcularInteresesTests
         Assert.Equal(100.00m, intereses.Intereses["INV-001"]);  // 6 % anual de 20 000
         Assert.Equal(25.00m, intereses.Intereses["EMP-001"]);   // 1 % anual sobre 30 000 (exento 20 000)
         Assert.Equal(122.00m, intereses.Total);
+    }
+
+    [Fact]
+    public void UnSaldoNegativoPorUnaReversionNoGeneraInteres()
+    {
+        CuentaInversion cuenta = Escenario.Inversion(0m);
+        Deposito deposito = Escenario.NuevoDeposito(cuenta, 1_000.00m);
+        cuenta.Aceptar(new EjecutarTransaccion(deposito));
+        cuenta.Aceptar(new EjecutarTransaccion(Escenario.NuevoRetiro(cuenta, 1_000.00m, Escenario.Vencimiento)));
+        cuenta.Aceptar(new RevertirTransaccion(deposito)); // queda en −1000
+        CalcularIntereses intereses = new();
+
+        cuenta.Aceptar(intereses);
+
+        Assert.Equal(0m, intereses.Intereses["INV-001"]);
     }
 
     [Fact]
