@@ -250,6 +250,8 @@ costo de sus observadores, justo lo que GoF advierte que el patrón no controla
 (Gamma et al., 1994, p.~330).
 
 \paragraph{La solución: una cola entre detectar y enviar.}
+Entre el observador que detecta el cruce y el canal que entrega el aviso se mete una cola
+acotada, y el envío pasa a hacerlo un grupo de consumidores en segundo plano.
 
 \begin{figure}[H]
   \centering

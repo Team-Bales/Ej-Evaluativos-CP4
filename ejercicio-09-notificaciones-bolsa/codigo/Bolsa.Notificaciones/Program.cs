@@ -5,6 +5,7 @@ using Bolsa.Notificaciones.Demos;
 //
 //   dotnet run --project Bolsa.Notificaciones                  → inciso b)
 //   dotnet run --project Bolsa.Notificaciones -- asincrono     → inciso c)
+//   dotnet run --project Bolsa.Notificaciones -- rendimiento   → inciso d)
 //
 // El modo por omisión es la simulación del inciso b), para que el comando del
 // README de ese inciso siga haciendo lo mismo que antes.
@@ -22,8 +23,13 @@ switch (modo)
         await DemoAsincrona.EjecutarAsync();
         return 0;
 
+    case "rendimiento":
+        // Argumento opcional: número máximo de clientes (por omisión, 1 000 000).
+        await BenchmarkRendimiento.EjecutarAsync(args.Length > 1 ? args[1] : null);
+        return 0;
+
     default:
         Console.Error.WriteLine($"Modo desconocido: «{modo}».");
-        Console.Error.WriteLine("Modos: simulacion (inciso b), asincrono (inciso c).");
+        Console.Error.WriteLine("Modos: simulacion (inciso b), asincrono (inciso c), rendimiento (inciso d).");
         return 1;
 }
