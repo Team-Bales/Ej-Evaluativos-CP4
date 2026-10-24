@@ -43,7 +43,7 @@ El diseño se presenta en dos figuras. La primera muestra el patrón; la segunda
 | Visitor | `IVisitanteCuenta` | Declara un `Visitar` por cada clase de cuenta (cuatro sobrecargas). |
 | ConcreteVisitor | `EjecutarTransaccion`, `RevertirTransaccion`, `AuditarTransaccion` | Las tres operaciones del enunciado. Cada `Visitar` aplica la regla de esa operación para ese tipo de cuenta. `CalcularIntereses` es una cuarta operación, agregada en el inciso b para demostrar la extensibilidad. |
 | ObjectStructure | las cuentas de una transacción | GoF admite que sea una colección o un Composite (p. 370). Aquí son las cuentas a las que afectan los movimientos de la transacción; en el inciso c será un grupo de cuentas. |
-| Client | `ProcesadorTransacciones` | Crea el visitante de la operación (`EjecutarTransaccion`, `RevertirTransaccion` o `AuditarTransaccion`) y llama a `Aceptar` en cada cuenta de la transacción. Solo conoce `ICuenta`: no sabe qué tipos de cuenta hay ni cuáles son sus reglas. |
+| Client | `ProcesadorTransacciones` | Crea el visitante de la operación (`EjecutarTransaccion`, `RevertirTransaccion` o `AuditarTransaccion`) y llama a `Aceptar` en cada cuenta de la transacción. Para pasar el visitante solo usa `ICuenta`: no sabe qué tipos de cuenta hay ni cuáles son sus reglas. |
 
 **Relaciones y multiplicidades.** Las cuatro cuentas heredan de `Cuenta`, que implementa `ICuenta`. Los visitantes implementan `IVisitanteCuenta`. Cada `Cuenta` es dueña de 0 a muchos `Asiento` (composición). Cada visitante de transacción guarda la `Transaccion` que procesa (su atributo `Transaccion`). En la figura 2, cada `Transaccion` se describe con 1 o más `Movimiento`, y cada movimiento afecta a 1 `Cuenta`.
 
@@ -53,7 +53,7 @@ El diseño se presenta en dos figuras. La primera muestra el patrón; la segunda
 // En cada cuenta concreta (aquí, la corriente):
 public override void Aceptar(IVisitanteCuenta visitante) => visitante.Visitar(this);
 
-// En el cliente, que solo conoce ICuenta y el visitante:
+// En el cliente, que pasa el visitante a través de ICuenta:
 cuenta.Aceptar(new EjecutarTransaccion(retiro));
 ```
 
@@ -70,6 +70,7 @@ En la figura 2:
 
 - **`Transaccion`** (abstracta) guarda **quién** la pidió (`Usuario`), **cuándo** (`Fecha`), la autorización si hace falta y sus **movimientos**. Las cuatro transacciones del enunciado son subclases.
 - Cada transacción se describe con **débitos y créditos** (`Movimiento`). Un depósito es un crédito; un retiro o un pago, un débito; una transferencia, un débito en el origen y un crédito en el destino.
+- Cada movimiento apunta a una `Cuenta`, la clase base de las cuentas reales, y no a `ICuenta`: un depósito o un retiro afecta siempre a una cuenta concreta, nunca a un grupo de cuentas del inciso c. Un grupo se puede visitar, pero no puede ser el destino de un movimiento.
 - Los visitantes **reciben la transacción como datos** en su constructor (`new EjecutarTransaccion(transaccion)`), y en cada cuenta aplican el movimiento que le corresponde.
 
 **Por qué no un Command completo**, con `Ejecutar()` y `Deshacer()` dentro de cada transacción:
