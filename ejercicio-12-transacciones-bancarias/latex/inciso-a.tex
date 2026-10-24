@@ -128,8 +128,8 @@ ObjectStructure & las cuentas de una transacción
 Client & \texttt{ProcesadorTransacciones}
   & Crea el visitante de la operación (\texttt{EjecutarTransaccion},
     \texttt{RevertirTransaccion} o \texttt{AuditarTransaccion}) y llama a \texttt{Aceptar} en
-    cada cuenta de la transacción. Solo conoce \texttt{ICuenta}: no sabe qué tipos de cuenta
-    hay ni cuáles son sus reglas. \\
+    cada cuenta de la transacción. Para pasar el visitante solo usa \texttt{ICuenta}: no sabe
+    qué tipos de cuenta hay ni cuáles son sus reglas. \\
 \bottomrule
 \end{tabularx}
 \caption{Roles de Visitor en la solución.}
@@ -149,7 +149,7 @@ que procesa (su atributo \texttt{Transaccion}). En la figura~\ref{fig:e12-transa
 // En cada cuenta concreta (aquí, la corriente):
 public override void Aceptar(IVisitanteCuenta visitante) => visitante.Visitar(this);
 
-// En el cliente, que solo conoce ICuenta y el visitante:
+// En el cliente, que pasa el visitante a través de ICuenta:
 cuenta.Aceptar(new EjecutarTransaccion(retiro));
 \end{lstlisting}
 
@@ -184,6 +184,10 @@ En la figura~\ref{fig:e12-transacciones}:
   \item Cada transacción se describe con \textbf{débitos y créditos} (\texttt{Movimiento}). Un
         depósito es un crédito; un retiro o un pago, un débito; una transferencia, un débito
         en el origen y un crédito en el destino.
+  \item Cada movimiento apunta a una \texttt{Cuenta}, la clase base de las cuentas reales, y
+        no a \texttt{ICuenta}: un depósito o un retiro afecta siempre a una cuenta concreta,
+        nunca a un grupo de cuentas del inciso~c. Un grupo se puede visitar, pero no puede ser
+        el destino de un movimiento.
   \item Los visitantes \textbf{reciben la transacción como datos} en su constructor, por
         ejemplo \texttt{new EjecutarTransaccion(\allowbreak{}transaccion)}, y en cada cuenta
         aplican el movimiento que le corresponde.

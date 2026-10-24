@@ -17,7 +17,7 @@ Se lee de arriba abajo, siguiendo lo que pasa al ejecutar una transacción.
 
 1. **`ProcesadorTransacciones`** (`Client`, en verde) recibe la transacción. Tiene dos flechas punteadas:
    - **crea el visitante** de la operación: `EjecutarTransaccion`, `RevertirTransaccion` o `AuditarTransaccion`. La flecha llega a `IVisitanteCuenta`, la interfaz que los tres implementan;
-   - **llama a `Aceptar(v)`** en cada cuenta de la transacción. Solo conoce la interfaz `ICuenta`.
+   - **llama a `Aceptar(v)`** en cada cuenta de la transacción, a través de la interfaz `ICuenta`.
 2. **`ICuenta`** (`Element`) solo tiene `Aceptar`. La flecha punteada horizontal hacia **`IVisitanteCuenta`** (`Visitor`) es el doble despacho: `Aceptar(v)` llama a `v.Visitar(this)`, y el tipo de `this` elige cuál de los cuatro `Visitar` se ejecuta.
 3. **Lado izquierdo, las cuentas.**
    - `Cuenta` (abstracta, en cursiva) implementa `ICuenta` y tiene lo común: número, titular, saldo y el historial de asientos.
