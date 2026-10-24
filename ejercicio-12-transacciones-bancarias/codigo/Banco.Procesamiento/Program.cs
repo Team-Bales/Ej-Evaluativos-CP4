@@ -87,6 +87,25 @@ foreach (Transaccion transaccion in transacciones)
     }
 }
 
+// --------------------------------------------------------------------------
+// 4. Extensibilidad: CalcularIntereses es una operación nueva. Solo se creó
+// esa clase; ninguna cuenta ni transacción cambió.
+// --------------------------------------------------------------------------
+Titulo("4. Operación nueva: CalcularIntereses (una clase nueva, 0 cuentas modificadas)");
+CalcularIntereses intereses = new();
+foreach (Cuenta cuenta in cuentas)
+{
+    cuenta.Aceptar(intereses);
+}
+
+foreach ((string numero, decimal interes) in intereses.Intereses)
+{
+    Console.WriteLine($"  {numero}  {F(interes),9}");
+}
+
+Console.WriteLine($"  total     {F(intereses.Total),9}");
+EstadoDeLasCuentas();
+
 void EstadoDeLasCuentas()
 {
     Console.WriteLine();
