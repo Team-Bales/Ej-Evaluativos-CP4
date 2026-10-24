@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="740" viewBox="0 0 1280 740">
+<defs>
+<marker id="flecha" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+  <path d="M0,0 L9,3.5 L0,7 z" fill="#4b5563"/>
+</marker>
+<marker id="flecha-ambar" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+  <path d="M0,0 L9,3.5 L0,7 z" fill="#b7862a"/>
+</marker>
+</defs>
+
+<rect width="1280" height="740" fill="#ffffff"/>
+<text x="40" y="44" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="22" font-weight="bold" fill="#1f2937">Ejercicio 9 · inciso c · Entrega asíncrona y aislamiento de fallos</text>
+<text x="40" y="68" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" fill="#6b7280">La alerta solo encola y regresa; el envío ocurre en segundo plano. Cada envío va aislado y se reintenta antes de darse por perdido.</text>
+
+<!-- ================= Zona 1: el hilo del sujeto ================= -->
+<rect x="24" y="88" width="430" height="562" rx="14" fill="#f4f7fd" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="44" y="116" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#3d5fb0">1 · Hilo que cambia el precio · SÍNCRONO</text>
+<text x="44" y="136" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#6b7280">El Observer de GoF: llamadas de método, una tras otra.</text>
+
+<g>
+<rect x="51" y="156" width="382" height="96" rx="8" fill="#000" opacity="0.06"/>
+<rect x="48" y="152" width="382" height="96" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M48,186 V160 Q48,152 56,152 H422 Q430,152 430,160 V186 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="239" y="176" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#1f2937">Accion  (ConcreteSubject)</text>
+<text x="64" y="212" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">ActualizarPrecio(155.00)</text>
+<text x="64" y="234" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">Notificar(cambio): try/catch por observador</text>
+</g>
+
+<path d="M239,248 V284" stroke="#4b5563" stroke-width="1.6" fill="none" marker-end="url(#flecha)"/>
+
+<g>
+<rect x="51" y="292" width="382" height="96" rx="8" fill="#000" opacity="0.06"/>
+<rect x="48" y="288" width="382" height="96" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M48,322 V296 Q48,288 56,288 H422 Q430,288 430,296 V322 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="239" y="312" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#1f2937">AlertaUmbral  (×1500)</text>
+<text x="64" y="348" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">¿cruzó mi umbral? 2 comparaciones</text>
+<text x="64" y="370" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">sí → Encolar(Notificacion)</text>
+</g>
+
+<path d="M239,388 V424" stroke="#4b5563" stroke-width="1.6" fill="none" marker-end="url(#flecha)"/>
+
+<g>
+<rect x="51" y="432" width="382" height="96" rx="8" fill="#000" opacity="0.06"/>
+<rect x="48" y="428" width="382" height="96" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M48,462 V436 Q48,428 56,428 H422 Q430,428 430,436 V462 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="239" y="452" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">IDespachadorNotificaciones.Encolar</text>
+<text x="64" y="488" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">TryWrite(envio) y regresa</text>
+<text x="64" y="510" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">cola llena → rechaza y registra</text>
+</g>
+
+<rect x="48" y="548" width="382" height="78" rx="8" fill="#ffffff" stroke="#3d5fb0" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="64" y="572" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-weight="bold" fill="#3d5fb0">Lo que nunca ocurre aquí</text>
+<text x="64" y="592" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">Esperar a un canal. Ni perder a los demás</text>
+<text x="64" y="610" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">suscriptores porque uno falle.</text>
+
+<!-- ================= La cola: la frontera ================= -->
+<text x="617" y="288" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-weight="bold" fill="#b7862a">frontera asíncrona</text>
+<g>
+<rect x="495" y="304" width="250" height="150" rx="8" fill="#000" opacity="0.06"/>
+<rect x="492" y="300" width="250" height="150" rx="8" fill="#fff" stroke="#b7862a" stroke-width="1.6"/>
+<path d="M492,334 V308 Q492,300 500,300 H734 Q742,300 742,308 V334 Z" fill="#fcefd4" stroke="#b7862a" stroke-width="1.6"/>
+<text x="617" y="324" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#1f2937">Cola acotada</text>
+<text x="617" y="354" text-anchor="middle" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="11.5" fill="#6b7280">Channel&lt;EnvioPendiente&gt;</text>
+<rect x="504" y="366" width="42" height="30" rx="4" fill="#fcefd4" stroke="#b7862a" stroke-width="1.2"/>
+<rect x="550" y="366" width="42" height="30" rx="4" fill="#fcefd4" stroke="#b7862a" stroke-width="1.2"/>
+<rect x="596" y="366" width="42" height="30" rx="4" fill="#fcefd4" stroke="#b7862a" stroke-width="1.2"/>
+<rect x="642" y="366" width="42" height="30" rx="4" fill="#ffffff" stroke="#b7862a" stroke-width="1.2" stroke-dasharray="4 3"/>
+<rect x="688" y="366" width="42" height="30" rx="4" fill="#ffffff" stroke="#b7862a" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="617" y="424" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" fill="#6b7280">capacidad acotada: al llenarse,</text>
+<text x="617" y="440" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" fill="#6b7280">se rechaza en vez de crecer sin fin</text>
+</g>
+
+<path d="M430,476 H462 V392 H488" stroke="#4b5563" stroke-width="1.6" fill="none" marker-end="url(#flecha)"/>
+<path d="M742,345 H766 V212 H790" stroke="#4b5563" stroke-width="1.6" fill="none" marker-end="url(#flecha)"/>
+
+<!-- ================= Zona 2: segundo plano ================= -->
+<rect x="770" y="88" width="486" height="562" rx="14" fill="#f3faf6" stroke="#2f8a55" stroke-width="1.2"/>
+<text x="790" y="116" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#2f8a55">2 · Consumidores · ASÍNCRONO</text>
+<text x="790" y="136" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#6b7280">Cuatro tareas en segundo plano vacían la cola.</text>
+
+<g>
+<rect x="797" y="156" width="438" height="112" rx="8" fill="#000" opacity="0.06"/>
+<rect x="794" y="152" width="438" height="112" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M794,186 V160 Q794,152 802,152 H1224 Q1232,152 1232,160 V186 Z" fill="#ddf0e5" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="1013" y="176" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#1f2937">Consumidor  (×4)</text>
+<text x="810" y="212" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">await foreach (envio in Reader.ReadAllAsync())</text>
+<text x="810" y="234" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">try  { await cliente.Canal.EnviarAsync(n) }</text>
+<text x="810" y="256" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">catch { registra el fallo y decide }</text>
+</g>
+
+<path d="M1013,268 V288" stroke="#4b5563" stroke-width="1.6" fill="none" marker-end="url(#flecha)"/>
+<text x="794" y="296" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">Cada envío acaba en uno de estos tres estados:</text>
+
+<g>
+<rect x="797" y="310" width="438" height="84" rx="8" fill="#000" opacity="0.06"/>
+<rect x="794" y="306" width="438" height="84" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M794,340 V314 Q794,306 802,306 H1224 Q1232,306 1232,314 V340 Z" fill="#ddf0e5" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="810" y="330" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">✓  Entregada</text>
+<text x="810" y="364" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">el canal confirma → Repositorio.Guardar(n)</text>
+</g>
+
+<g>
+<rect x="797" y="414" width="438" height="84" rx="8" fill="#000" opacity="0.06"/>
+<rect x="794" y="410" width="438" height="84" rx="8" fill="#fff" stroke="#b7862a" stroke-width="1.6"/>
+<path d="M794,444 V418 Q794,410 802,410 H1224 Q1232,410 1232,418 V444 Z" fill="#fcefd4" stroke="#b7862a" stroke-width="1.6"/>
+<text x="810" y="434" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">↻  Reintento con espera creciente</text>
+<text x="810" y="468" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">quedan intentos → espera 50·2ⁿ ms y vuelve</text>
+</g>
+
+<g>
+<rect x="797" y="518" width="438" height="84" rx="8" fill="#000" opacity="0.06"/>
+<rect x="794" y="514" width="438" height="84" rx="8" fill="#fff" stroke="#b3261e" stroke-width="1.6"/>
+<path d="M794,548 V522 Q794,514 802,514 H1224 Q1232,514 1232,522 V548 Z" fill="#fbe4e2" stroke="#b3261e" stroke-width="1.6"/>
+<text x="810" y="538" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">✗  Fallo definitivo (dead letter)</text>
+<text x="810" y="572" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12.5" fill="#1f2937">agotó MaxIntentos → FallosDefinitivos</text>
+</g>
+
+<!-- Realimentación: el reintento vuelve a la cola -->
+<path d="M794,452 H762 V484 H617 V458" stroke="#b7862a" stroke-width="1.6" fill="none" stroke-dasharray="6 4" marker-end="url(#flecha-ambar)"/>
+<text x="690" y="500" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#b7862a">reencola</text>
+
+<text x="794" y="620" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">El dead letter es lo que la restricción (#5) persiste</text>
+<text x="794" y="638" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">para garantizar la entrega at-least-once.</text>
+
+<!-- ================= Medición ================= -->
+<rect x="24" y="666" width="1232" height="56" rx="12" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.2"/>
+<text x="44" y="690" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Medido (i5-7300U, .NET 10):</text>
+<text x="44" y="710" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">con un canal de 2 s, ActualizarPrecio pasa de 2002,8 ms (síncrono) a 0,1 ms (asíncrono); la entrega termina 2006 ms después, ya fuera del hilo del sujeto.</text>
+</svg>
