@@ -1,0 +1,244 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1570" viewBox="0 0 1200 1570">
+<rect width="1200" height="1570" fill="#ffffff"/>
+<text x="40" y="44" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="22" font-weight="bold" fill="#1f2937">Ejercicio 9 · Diagrama de clases de la solución con Observer</text>
+<rect x="24" y="70" width="1152" height="680" rx="14" fill="#f4f7fd" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="44" y="100" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#3d5fb0">1 · Patrón Observer</text>
+<text x="44" y="120" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#6b7280">La acción (sujeto) avisa a sus suscripciones (observadores) cuando cambia su precio.</text>
+<rect x="24" y="790" width="1152" height="600" rx="14" fill="#f3faf6" stroke="#2f8a55" stroke-width="1.2"/>
+<text x="272" y="820" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#2f8a55">2 · Notificación y entrega</text>
+<text x="272" y="840" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#6b7280">Fuera de los roles de Observer.</text>
+<g>
+<rect x="73" y="154" width="400" height="153" rx="8" fill="#000" opacity="0.06"/>
+<rect x="70" y="150" width="400" height="153" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M70,208 V158 Q70,150 78,150 H462 Q470,150 470,158 V208 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="270.0" y="172" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«interface»</text>
+<text x="270.0" y="194" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">ISujetoPrecio</text>
+<line x1="70" y1="220" x2="470" y2="220" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="84" y="245" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Suscribir(IObservadorPrecio)</text>
+<text x="84" y="266" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Desuscribir(IObservadorPrecio)</text>
+<text x="84" y="287" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Notificar(CambioPrecio)</text>
+<rect x="404.0" y="139" width="58.0" height="20" rx="10" fill="#3d5fb0"/>
+<text x="433.0" y="153.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">Subject</text>
+</g>
+<g>
+<rect x="733" y="154" width="400" height="174" rx="8" fill="#000" opacity="0.06"/>
+<rect x="730" y="150" width="400" height="174" rx="8" fill="#fff" stroke="#b7862a" stroke-width="1.6"/>
+<path d="M730,208 V158 Q730,150 738,150 H1122 Q1130,150 1130,158 V208 Z" fill="#fcefd4" stroke="#b7862a" stroke-width="1.6"/>
+<text x="930.0" y="172" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«record»</text>
+<text x="930.0" y="194" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CambioPrecio</text>
+<line x1="730" y1="312" x2="1130" y2="312" stroke="#b7862a" stroke-width="1.2"/>
+<text x="744" y="233" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Simbolo: string</text>
+<text x="744" y="254" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+PrecioAnterior: decimal</text>
+<text x="744" y="275" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+PrecioNuevo: decimal</text>
+<text x="744" y="296" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Instante: DateTimeOffset</text>
+</g>
+<g>
+<rect x="73" y="384" width="400" height="164" rx="8" fill="#000" opacity="0.06"/>
+<rect x="70" y="380" width="400" height="164" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M70,420 V388 Q70,380 78,380 H462 Q470,380 470,388 V420 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="270.0" y="406" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Accion</text>
+<line x1="70" y1="503" x2="470" y2="503" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="84" y="445" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Simbolo: string</text>
+<text x="84" y="466" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Precio: decimal</text>
+<text x="84" y="487" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">-observadores: ImmutableList&lt;IObservadorPrecio&gt;</text>
+<text x="84" y="528" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+ActualizarPrecio(decimal)</text>
+<rect x="348.0" y="369" width="114.0" height="20" rx="10" fill="#3d5fb0"/>
+<text x="405.0" y="383.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteSubject</text>
+</g>
+<g>
+<rect x="733" y="414" width="400" height="111" rx="8" fill="#000" opacity="0.06"/>
+<rect x="730" y="410" width="400" height="111" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M730,468 V418 Q730,410 738,410 H1122 Q1130,410 1130,418 V468 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="930.0" y="432" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«interface»</text>
+<text x="930.0" y="454" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">IObservadorPrecio</text>
+<line x1="730" y1="480" x2="1130" y2="480" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="744" y="505" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Actualizar(CambioPrecio)</text>
+<rect x="1057.0" y="399" width="65.0" height="20" rx="10" fill="#3d5fb0"/>
+<text x="1089.5" y="413.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">Observer</text>
+</g>
+<g>
+<rect x="733" y="574" width="400" height="164" rx="8" fill="#000" opacity="0.06"/>
+<rect x="730" y="570" width="400" height="164" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M730,610 V578 Q730,570 738,570 H1122 Q1130,570 1130,578 V610 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="930.0" y="596" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">AlertaUmbral</text>
+<line x1="730" y1="693" x2="1130" y2="693" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="744" y="635" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">-cliente: Cliente</text>
+<text x="744" y="656" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">-umbral: decimal</text>
+<text x="744" y="677" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">-direccion: Direccion</text>
+<text x="744" y="718" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Actualizar(CambioPrecio)</text>
+<rect x="1001.0" y="559" width="121.0" height="20" rx="10" fill="#3d5fb0"/>
+<text x="1061.5" y="573.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteObserver</text>
+</g>
+<g>
+<rect x="123" y="594" width="200" height="132" rx="8" fill="#000" opacity="0.06"/>
+<rect x="120" y="590" width="200" height="132" rx="8" fill="#fff" stroke="#6b6f80" stroke-width="1.6"/>
+<path d="M120,648 V598 Q120,590 128,590 H312 Q320,590 320,598 V648 Z" fill="#ececf0" stroke="#6b6f80" stroke-width="1.6"/>
+<text x="220.0" y="612" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«enumeration»</text>
+<text x="220.0" y="634" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Direccion</text>
+<line x1="120" y1="710" x2="320" y2="710" stroke="#6b6f80" stroke-width="1.2"/>
+<text x="134" y="673" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">Sube</text>
+<text x="134" y="694" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">Baja</text>
+</g>
+<path d="M270.0,380 L270.0,303" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M277.7,317.0 L270.0,303 L262.3,317.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M930.0,570 L930.0,521" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M937.7,535.0 L930.0,521 L922.3,535.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M470,450 L730,450" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M719.2,455.2 L730,450 L719.2,444.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M470.0,450.0 L481.0,456.0 L492.0,450.0 L481.0,444.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="563.6" y="462" width="72.8" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="600.0" y="477" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">notifica</text>
+<text x="498" y="442" text-anchor="start" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<text x="722" y="442" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">0..*</text>
+<path d="M470,398 L600,398 L600,237.0 L730,237.0" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M719.2,242.2 L730,237.0 L719.2,231.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="578.8" y="325.5" width="42.4" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="600.0" y="340.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">crea</text>
+<path d="M930.0,410 L930.0,324" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M935.2,334.8 L930.0,324 L924.8,334.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="949.2" y="357.0" width="57.599999999999994" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="978.0" y="372.0" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">recibe</text>
+<path d="M730,664.0 L320,664.0" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M330.8,658.8 L320,664.0 L330.8,669.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<text x="722" y="656.0" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">0..*</text>
+<text x="328" y="656.0" text-anchor="start" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<g>
+<rect x="73" y="874" width="340" height="153" rx="8" fill="#000" opacity="0.06"/>
+<rect x="70" y="870" width="340" height="153" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M70,928 V878 Q70,870 78,870 H402 Q410,870 410,878 V928 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="240.0" y="892" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«record»</text>
+<text x="240.0" y="914" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Cliente</text>
+<line x1="70" y1="1011" x2="410" y2="1011" stroke="#2f8a55" stroke-width="1.2"/>
+<text x="84" y="953" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Id: string</text>
+<text x="84" y="974" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Contacto: string</text>
+<text x="84" y="995" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Canal: ICanalNotificacion</text>
+</g>
+<g>
+<rect x="453" y="874" width="240" height="153" rx="8" fill="#000" opacity="0.06"/>
+<rect x="450" y="870" width="240" height="153" rx="8" fill="#fff" stroke="#b7862a" stroke-width="1.6"/>
+<path d="M450,928 V878 Q450,870 458,870 H682 Q690,870 690,878 V928 Z" fill="#fcefd4" stroke="#b7862a" stroke-width="1.6"/>
+<text x="570.0" y="892" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«record»</text>
+<text x="570.0" y="914" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Notificacion</text>
+<line x1="450" y1="1011" x2="690" y2="1011" stroke="#b7862a" stroke-width="1.2"/>
+<text x="464" y="953" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Id: Guid</text>
+<text x="464" y="974" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Cliente: Cliente</text>
+<text x="464" y="995" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Mensaje: string</text>
+</g>
+<g>
+<rect x="733" y="874" width="400" height="143" rx="8" fill="#000" opacity="0.06"/>
+<rect x="730" y="870" width="400" height="143" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M730,910 V878 Q730,870 738,870 H1122 Q1130,870 1130,878 V910 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="930.0" y="896" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">DespachadorNotificaciones</text>
+<line x1="730" y1="972" x2="1130" y2="972" stroke="#2f8a55" stroke-width="1.2"/>
+<text x="744" y="935" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">-cola: Channel&lt;Notificacion&gt;</text>
+<text x="744" y="956" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">-repo: IRepositorioNotificaciones</text>
+<text x="744" y="997" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Encolar(Notificacion)</text>
+</g>
+<g>
+<rect x="73" y="1104" width="420" height="111" rx="8" fill="#000" opacity="0.06"/>
+<rect x="70" y="1100" width="420" height="111" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M70,1158 V1108 Q70,1100 78,1100 H482 Q490,1100 490,1108 V1158 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="280.0" y="1122" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«interface»</text>
+<text x="280.0" y="1144" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">ICanalNotificacion</text>
+<line x1="70" y1="1170" x2="490" y2="1170" stroke="#2f8a55" stroke-width="1.2"/>
+<text x="84" y="1195" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+EnviarAsync(Notificacion): Task</text>
+<rect x="417.0" y="1089" width="65.0" height="20" rx="10" fill="#2f8a55"/>
+<text x="449.5" y="1103.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">Strategy</text>
+</g>
+<g>
+<rect x="773" y="1104" width="360" height="132" rx="8" fill="#000" opacity="0.06"/>
+<rect x="770" y="1100" width="360" height="132" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M770,1158 V1108 Q770,1100 778,1100 H1122 Q1130,1100 1130,1108 V1158 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="950.0" y="1122" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«interface»</text>
+<text x="950.0" y="1144" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">IRepositorioNotificaciones</text>
+<line x1="770" y1="1170" x2="1130" y2="1170" stroke="#2f8a55" stroke-width="1.2"/>
+<text x="784" y="1195" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Guardar(Notificacion)</text>
+<text x="784" y="1216" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Pendientes(): IReadOnlyList&lt;Notificacion&gt;</text>
+</g>
+<path d="M760,734 L760,774 L240.0,774 L240.0,870" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M234.8,859.2 L240.0,870 L245.2,859.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="262.2" y="762" width="95.6" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="310.0" y="777" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">pertenece a</text>
+<text x="768" y="754" text-anchor="start" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">0..*</text>
+<text x="248.0" y="860" text-anchor="start" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<path d="M820,734 L820,806 L570.0,806 L570.0,870" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M564.8,859.2 L570.0,870 L575.2,859.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="798.8" y="794" width="42.4" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="820.0" y="809" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">crea</text>
+<path d="M990.0,734 L990.0,870" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M984.8,859.2 L990.0,870 L995.2,859.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="1005.2" y="790.0" width="57.599999999999994" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="1034.0" y="805.0" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">encola</text>
+<text x="982.0" y="754" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">0..*</text>
+<text x="982.0" y="862" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<path d="M240.0,1023 L240.0,1100" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M234.8,1089.2 L240.0,1100 L245.2,1089.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="270.0" y="1049.5" width="34.8" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="287.4" y="1064.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">usa</text>
+<text x="232.0" y="1043" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">0..*</text>
+<text x="232.0" y="1092" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<path d="M750,1013 L750,1165.5 L490,1165.5" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M500.8,1160.3 L490,1165.5 L500.8,1170.7" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="579.8" y="1135.5" width="80.39999999999999" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="620.0" y="1150.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">envía por</text>
+<text x="758" y="1033" text-anchor="start" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<text x="500" y="1185.5" text-anchor="start" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1..*</text>
+<path d="M990.0,1013 L990.0,1100" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M984.8,1089.2 L990.0,1100 L995.2,1089.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="1003.8" y="1044.5" width="80.39999999999999" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="1044.0" y="1059.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">guarda en</text>
+<text x="982.0" y="1033" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<text x="982.0" y="1092" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<g>
+<rect x="83" y="1284" width="130" height="64" rx="8" fill="#000" opacity="0.06"/>
+<rect x="80" y="1280" width="130" height="64" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M80,1320 V1288 Q80,1280 88,1280 H202 Q210,1280 210,1288 V1320 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="145.0" y="1306" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CanalEmail</text>
+<line x1="80" y1="1332" x2="210" y2="1332" stroke="#2f8a55" stroke-width="1.2"/>
+</g>
+<g>
+<rect x="228" y="1284" width="130" height="64" rx="8" fill="#000" opacity="0.06"/>
+<rect x="225" y="1280" width="130" height="64" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M225,1320 V1288 Q225,1280 233,1280 H347 Q355,1280 355,1288 V1320 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="290.0" y="1306" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CanalSms</text>
+<line x1="225" y1="1332" x2="355" y2="1332" stroke="#2f8a55" stroke-width="1.2"/>
+</g>
+<g>
+<rect x="373" y="1284" width="130" height="64" rx="8" fill="#000" opacity="0.06"/>
+<rect x="370" y="1280" width="130" height="64" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M370,1320 V1288 Q370,1280 378,1280 H492 Q500,1280 500,1288 V1320 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="435.0" y="1306" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CanalPush</text>
+<line x1="370" y1="1332" x2="500" y2="1332" stroke="#2f8a55" stroke-width="1.2"/>
+</g>
+<path d="M145.0,1280 L145.0,1250" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M290.0,1280 L290.0,1250" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M435.0,1280 L435.0,1250" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M145.0,1250 L435.0,1250" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M280.0,1250 L280.0,1227" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M287.7,1225.0 L280.0,1211 L272.3,1225.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="24" y="1410" width="1152" height="125" rx="14" fill="#fafafa" stroke="#d1d5db"/>
+<text x="44" y="1435" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">Leyenda</text>
+<path d="M44,1465 L104,1465" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M90.0,1472.7 L104,1465 L90.0,1457.3 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<text x="116" y="1470" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">implementa la interfaz</text>
+<path d="M604,1465 L664,1465" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M653.2,1470.2 L664,1465 L653.2,1459.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M604.0,1465.0 L615.0,1471.0 L626.0,1465.0 L615.0,1459.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<text x="676" y="1470" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">agregación (guarda una colección)</text>
+<path d="M44,1495 L104,1495" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M93.2,1500.2 L104,1495 L93.2,1489.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<text x="116" y="1500" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">asociación (lo tiene como atributo)</text>
+<path d="M604,1495 L664,1495" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M653.2,1500.2 L664,1495 L653.2,1489.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<text x="676" y="1500" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">dependencia (lo crea o lo usa)</text>
+<text x="44" y="1525" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">Las etiquetas de color indican el rol de cada clase en el patrón (GoF). Colores: azul = Observer · ámbar = datos que viajan · verde = entrega · gris = enumeración.</text>
+<g>
+<rect x="833" y="1294" width="240" height="64" rx="8" fill="#000" opacity="0.06"/>
+<rect x="830" y="1290" width="240" height="64" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M830,1330 V1298 Q830,1290 838,1290 H1062 Q1070,1290 1070,1298 V1330 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="950.0" y="1316" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">RepositorioMemoria</text>
+<line x1="830" y1="1342" x2="1070" y2="1342" stroke="#2f8a55" stroke-width="1.2"/>
+</g>
+<path d="M950.0,1290 L950.0,1246" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M957.7,1246.0 L950.0,1232 L942.3,1246.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+</svg>
