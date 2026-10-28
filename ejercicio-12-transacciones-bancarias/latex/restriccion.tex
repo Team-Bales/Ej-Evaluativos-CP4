@@ -1,0 +1,272 @@
+% Ejercicio 12, restricción — issue #10. Mismo contenido que restriccion.md.
+% Fragmento sin preámbulo: lo incluye latex/main.tex, que ya pone el título.
+% \sloppy dentro de un grupo: los nombres largos en \texttt no se salen del margen,
+% y el ajuste no afecta a lo que sigue.
+\begingroup\sloppy
+
+\begin{quote}
+\itshape
+Las operaciones deben poder ejecutarse en paralelo sobre diferentes cuentas (considera
+concurrencia y estado mutable del Visitor). Además, el sistema debe garantizar que las
+transacciones sobre una misma cuenta sean atómicas y consistentes (¿cómo lo resuelves con el
+patrón elegido?).
+\end{quote}
+
+Se construye sobre el código de los incisos~b y~c. Todo el cambio está en
+\texttt{ProcesadorTransacciones} (el cliente del patrón) y en un candado por cuenta:
+\textbf{ningún visitante cambió}.
+
+\subsubsection{Respuesta corta}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Pregunta} & \textbf{Respuesta} \\
+\midrule
+¿Cómo corren en paralelo las operaciones sobre cuentas distintas?
+  & \texttt{EjecutarEnParalelo} reparte las transacciones con \texttt{Parallel.For}. Cada
+    transacción solo bloquea sus propias cuentas, así que las de cuentas distintas no se
+    esperan entre sí. \\
+\addlinespace
+¿Qué pasa con el estado mutable del visitante?
+  & \texttt{EjecutarTransaccion} y \texttt{RevertirTransaccion} no tienen estado mutable y
+    se pueden compartir. \texttt{AuditarTransaccion}, \texttt{CalcularIntereses} y
+    \texttt{ResumirPorGrupo} acumulan resultados: se usa \textbf{una instancia por tarea} y
+    los resultados se combinan al final. \\
+\addlinespace
+¿Cómo se garantiza que las transacciones sobre una misma cuenta sean atómicas y consistentes?
+  & \textbf{Un candado por cuenta.} Lo toma el cliente del patrón, que envuelve las visitas,
+    \textbf{en un orden fijo} (por número de cuenta) y no lo suelta hasta terminar, incluida
+    la reversión si algo falla. \\
+\addlinespace
+¿Cómo se resuelve con el patrón elegido?
+  & Visitor separa las reglas de negocio (los visitantes) de quién recorre las cuentas (el
+    cliente). La concurrencia es responsabilidad de ese cliente: los visitantes siguen sin
+    saber nada de hilos. \\
+\bottomrule
+\end{tabularx}
+\caption{Respuesta corta a la restricción.}
+\end{table}
+
+\subsubsection{Paralelismo sobre cuentas distintas}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true]
+public IReadOnlyList<ResultadoTransaccion> EjecutarEnParalelo(IReadOnlyList<Transaccion> transacciones)
+{
+    ResultadoTransaccion[] resultados = new ResultadoTransaccion[transacciones.Count];
+    Parallel.For(0, transacciones.Count, i => resultados[i] = Ejecutar(transacciones[i]));
+    return resultados;
+}
+\end{lstlisting}
+
+\begin{itemize}
+  \item \textbf{Cada \texttt{Ejecutar} toma solo los candados de sus cuentas.} Dos
+        transacciones sobre cuentas distintas no comparten ningún candado y corren a la vez.
+        Dos que comparten una cuenta se ejecutan de una en una.
+  \item \textbf{Los resultados vuelven en el orden de la lista,} aunque los hilos terminen en
+        cualquier orden: cada tarea escribe en su posición del arreglo.
+  \item \textbf{Las operaciones sobre un grupo (inciso~c) también corren en paralelo.}
+        \texttt{EjecutarEnCadaCuenta} crea una transacción por cuenta del grupo y las ejecuta
+        con \texttt{EjecutarEnParalelo}. Como cada una toca una sola cuenta, ninguna espera a
+        otra.
+\end{itemize}
+
+\subsubsection{El estado mutable de los visitantes}
+
+GoF describe al visitante concreto como el que guarda el estado local del algoritmo, que a
+menudo acumula resultados durante el recorrido (Gamma et al., 1994, p.~369). Ese estado es el
+que no se puede compartir entre hilos:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}
+                             >{\raggedright\arraybackslash}X
+                             >{\raggedright\arraybackslash}p{2.8cm}
+                             >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Visitante} & \textbf{Estado mutable} & \textbf{¿Compartible?} & \textbf{Solución} \\
+\midrule
+\texttt{EjecutarTransaccion} & ninguno: solo guarda la transacción, que no cambia & sí & se
+  crea uno por transacción de todos modos \\
+\texttt{RevertirTransaccion} & ninguno & sí & ídem \\
+\texttt{AuditarTransaccion} & la lista de registros & \textbf{no} & una instancia por tarea
+  (\texttt{AuditarEnParalelo}) \\
+\texttt{CalcularIntereses} & el diccionario de intereses & \textbf{no} & una instancia por
+  recorrido \\
+\texttt{ResumirPorGrupo} & los acumuladores por grupo & \textbf{no} & una instancia por
+  recorrido \\
+\texttt{RecolectarCuentas} & la lista de cuentas & \textbf{no} & \texttt{RecolectarCuentas.De}
+  crea uno en cada llamada \\
+\bottomrule
+\end{tabularx}
+\caption{Estado mutable de cada visitante y cómo se evita la condición de carrera.}
+\end{table}
+
+\textbf{Qué pasaría si se compartiera un \texttt{AuditarTransaccion} entre hilos:} dos hilos
+llamando a \texttt{List.Add} a la vez pueden perder registros, sobrescribirse o lanzar una
+excepción. Lo mismo pasa con \texttt{+=} en un acumulador: leer, sumar y escribir son tres
+pasos, y dos hilos pueden leer el mismo valor viejo.
+
+\textbf{Solución elegida: una instancia por tarea, y combinar al final.}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true]
+public IReadOnlyList<RegistroAuditoria> AuditarEnParalelo(IReadOnlyList<Transaccion> transacciones)
+{
+    IReadOnlyList<RegistroAuditoria>[] porTarea = new IReadOnlyList<RegistroAuditoria>[transacciones.Count];
+    Parallel.For(0, transacciones.Count, i => porTarea[i] = Auditar(transacciones[i]));  // cada Auditar crea su visitante
+    return porTarea.SelectMany(registros => registros).ToList();                         // se combinan al final, en orden
+}
+\end{lstlisting}
+
+Se descartó usar colecciones concurrentes (\texttt{ConcurrentBag}) dentro del visitante por
+dos razones:
+\begin{itemize}
+  \item \textbf{Perderían el orden de los registros,} y la auditoría lo necesita.
+  \item \textbf{No resolverían lo importante.} El estado compartido que de verdad importa no
+        está en los visitantes, sino en las \textbf{cuentas} (saldo, contadores e historial),
+        y eso lo protege el candado del punto siguiente.
+\end{itemize}
+
+\subsubsection{Atomicidad y consistencia en la misma cuenta}
+
+\paragraph{Un candado por cuenta.}
+Cada \texttt{Cuenta} tiene un objeto privado, \texttt{Candado}, y
+\texttt{ProcesadorTransacciones} lo toma con \texttt{Monitor} (lo que usa \texttt{lock} en
+C\#) antes de pasar el visitante.
+\begin{itemize}
+  \item \textbf{Es un objeto propio y no la cuenta misma,} para que ningún código de fuera
+        pueda bloquearlo por accidente.
+  \item \textbf{Todo lo que cambia la cuenta pasa con el candado tomado:} aplicar el
+        movimiento, cobrar el cargo, sumar el contador y anotar el asiento. Ningún otro hilo
+        ve la cuenta a medio cambiar.
+\end{itemize}
+
+\paragraph{Dónde se toma: en el cliente que envuelve las visitas, no en \texttt{Aceptar}.}
+Esta es la respuesta a «¿cómo lo resuelves con el patrón elegido?». Visitor ya separa dos
+responsabilidades: los visitantes tienen las reglas de cada tipo de cuenta, y el cliente decide
+qué cuentas visitar y con qué visitante. La atomicidad es una propiedad de la
+\textbf{transacción entera}, que puede tocar varias cuentas, así que el candado lo toma quien
+conoce todas esas cuentas: el cliente.
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true]
+public ResultadoTransaccion Ejecutar(Transaccion transaccion) =>
+    ConCandados(transaccion, () => EjecutarConCandados(transaccion));   // candados alrededor de todas las visitas
+\end{lstlisting}
+
+Tomar el candado dentro de \texttt{Aceptar} de cada cuenta no alcanzaría, por tres razones:
+\begin{enumerate}
+  \item \textbf{Una transferencia necesita las dos cuentas a la vez.} Con el candado en
+        \texttt{Aceptar}, la cuenta de origen se soltaría después del débito y antes del
+        crédito, y otro hilo podría ver el débito hecho y el crédito no. Si el crédito se
+        rechaza, la reversión del débito correría sin protección.
+  \item \textbf{No se podría fijar el orden de los candados.} Cada \texttt{Aceptar} tomaría el
+        suyo en el orden de los movimientos, que es justo lo que provoca interbloqueos (punto
+        siguiente).
+  \item \textbf{Mezclaría responsabilidades.} Las cuentas (elementos) y los visitantes
+        (reglas) no tienen por qué saber de hilos. Con el candado en el cliente,
+        \texttt{EjecutarTransaccion} sigue suponiendo que tiene la cuenta para él solo, y eso
+        es cierto.
+\end{enumerate}
+
+\paragraph{Orden fijo: sin interbloqueo.}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true]
+Cuenta[] cuentas = [.. transaccion.Cuentas.OrderBy(c => c.Numero, StringComparer.Ordinal)];
+// se toman en ese orden, se ejecuta la acción y se sueltan en orden inverso
+\end{lstlisting}
+
+\textbf{Qué pasaría sin el orden fijo:} dos transferencias cruzadas, A$\rightarrow$B y
+B$\rightarrow$A, al mismo tiempo. La primera toma A y espera B; la segunda toma B y espera A.
+Ninguna avanza nunca.
+
+\textbf{Con el orden fijo:} las dos piden primero el candado de la cuenta de número menor. La
+que lo consigue toma también el otro, termina y suelta los dos; la otra espera y después
+sigue. Así se elimina la espera circular, la condición que hace falta para que haya
+interbloqueo. Por eso el número de cuenta es único.
+
+\paragraph{Si falla a mitad: todo o nada con \texttt{RevertirTransaccion}.}
+Si el débito ya se aplicó y el crédito se rechaza, el procesador deshace el débito con el mismo
+\texttt{RevertirTransaccion} del inciso~b, \textbf{todavía con los candados tomados}. Nadie
+llega a ver el estado intermedio: desde fuera, la transacción se aplicó entera o no se aplicó.
+
+Por indicación de la revisión del inciso~b, si deshacer también fallara, el procesador ya no
+tapa el error original: lanza una \texttt{AggregateException} con los dos errores.
+
+\paragraph{Lecturas consistentes.}
+\begin{itemize}
+  \item \textbf{\texttt{Auditar} y \texttt{Revertir} también toman los candados de sus
+        cuentas,} así que no leen ni deshacen una cuenta a medio cambiar.
+  \item \textbf{El historial no se puede recorrer mientras otra transacción escribe en la
+        cuenta.} El iterador del inciso~c falla si la lista cambia durante el recorrido, en
+        vez de devolver datos a medias. Para leerlo con transacciones en curso hay que hacerlo
+        con el candado de la cuenta tomado, como hace la auditoría.
+\end{itemize}
+
+\subsubsection{Límites y alternativas}
+
+\begin{itemize}
+  \item \textbf{\texttt{Monitor} es síncrono.} Los visitantes no esperan nada (solo hacen
+        cuentas), así que alcanza. Si una regla necesitara \texttt{await}, por ejemplo para
+        consultar un servicio externo, haría falta \texttt{SemaphoreSlim(1, 1)} con
+        \texttt{WaitAsync}, porque un \texttt{Monitor} no se puede mantener a través de un
+        \texttt{await}.
+  \item \textbf{El candado es por cuenta, no global.} Una cuenta muy activa hace esperar solo a
+        sus propias transacciones. Un candado global sería correcto, pero quitaría todo el
+        paralelismo.
+\end{itemize}
+
+\subsubsection{Demostración}
+
+La sección 7 de la simulación lanza 1000 transacciones a la vez en cada caso. La salida no
+depende del orden en que corran los hilos:
+
+\begin{lstlisting}[language={}, numbers=none, basicstyle=\ttfamily\scriptsize, columns=fullflexible, keepspaces=true, breaklines=true]
+--- 7. Restricción: transacciones en paralelo ---
+  1000 depósitos y retiros de 10.00 a la vez sobre COR-101: 1000 aplicados, saldo 10000.00 (esperado 10000.00), 1000 asientos
+  1000 transferencias cruzadas entre COR-101 y COR-102 a la vez: 1000 aplicadas, sin interbloqueo; suma de las dos cuentas 20000.00 (se conserva)
+  Auditoría en paralelo de esas transferencias, un AuditarTransaccion por tarea: 2000 registros (2 por transferencia), 2000 conformes
+\end{lstlisting}
+
+\texttt{dotnet test} ejecuta \textbf{62 pruebas}, todas correctas: las 57 de los incisos~b
+y~c y 5 de concurrencia. Las ejecuté 5 veces seguidas sin ningún fallo.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{7cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Prueba} & \textbf{Qué comprueba} \\
+\midrule
+\texttt{DepositosYRetirosEnParalelo\-SobreLaMismaCuenta\_DanElSaldoEsperado} & 1000 depósitos
+  y retiros a la vez sobre \textbf{la misma} cuenta: el saldo final es el esperado y no se
+  pierde ningún asiento. \\
+\addlinespace
+\texttt{TransferenciasCruzadasEnParalelo\_\-TerminanSinInterbloqueoYConservanElDinero} & 1000
+  transferencias A$\rightarrow$B y B$\rightarrow$A a la vez terminan antes de 30\,s (sin
+  interbloqueo) y la suma de las dos cuentas no cambia. \\
+\addlinespace
+\texttt{TransferenciasRechazadasEnParalelo\_\-NoDejanRastroEnLaCuentaDeOrigen} & 500
+  transferencias que fallan a mitad, mezcladas con 500 depósitos: el origen solo refleja los
+  depósitos (todo o nada bajo concurrencia). \\
+\addlinespace
+\texttt{ReversionesEnParaleloSobreLaMismaCuenta\_\-DejanElEstadoOriginal} & 1000 retiros y sus
+  1000 reversiones en paralelo devuelven el saldo, las comisiones y las autorizaciones
+  originales. \\
+\addlinespace
+\texttt{AuditoriasEnParalelo\_ConUnVisitante\-PorTarea\_NoPierdenRegistros} & 1000 auditorías
+  en paralelo dan los 1000 registros, en orden. \\
+\bottomrule
+\end{tabularx}
+\caption{Pruebas de concurrencia.}
+\end{table}
+
+\paragraph{Referencias.}
+Gamma, E., Helm, R., Johnson, R., y Vlissides, J. (1994). \emph{Design patterns: Elements of
+reusable object-oriented software}. Addison-Wesley. Los números de página corresponden a la
+copia del libro en la bibliografía de la asignatura (\emph{Documentacion Patrones}), igual que
+en los incisos anteriores.
+
+\endgroup
