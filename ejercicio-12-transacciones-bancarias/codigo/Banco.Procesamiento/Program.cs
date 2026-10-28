@@ -106,6 +106,68 @@ foreach ((string numero, decimal interes) in intereses.Intereses)
 Console.WriteLine($"  total     {F(intereses.Total),9}");
 EstadoDeLasCuentas();
 
+// --------------------------------------------------------------------------
+// 5. Composite (inciso c): grupos anidados de cuentas. El banco tiene una
+// región con dos sucursales y una sucursal de empresas. Un grupo recibe el
+// mismo Aceptar que una cuenta.
+// --------------------------------------------------------------------------
+CuentaAhorro ahorroSinFondos = new("AHO-002", "Pedro Ruiz", 3.00m);
+GrupoCuentas sucursalCentro = new GrupoCuentas("Sucursal Centro").Agregar(ahorro, corriente);
+GrupoCuentas sucursalPlaya = new GrupoCuentas("Sucursal Playa").Agregar(inversion, ahorroSinFondos);
+GrupoCuentas regionOccidente = new GrupoCuentas("Región Occidente").Agregar(sucursalCentro, sucursalPlaya);
+GrupoCuentas sucursalEmpresas = new GrupoCuentas("Sucursal Empresas").Agregar(empresarial);
+GrupoCuentas banco = new GrupoCuentas("Banco").Agregar(regionOccidente, sucursalEmpresas);
+
+Titulo("5. Composite: totales por grupo en un solo recorrido (ResumirPorGrupo)");
+ImprimirResumen(banco);
+
+CalcularIntereses interesesDelBanco = new();
+banco.Aceptar(interesesDelBanco); // el mismo visitante del punto 4, sin cambios
+Console.WriteLine($"\n  CalcularIntereses sobre el banco entero (mismo visitante, sin cambios): total {F(interesesDelBanco.Total)}");
+
+Console.WriteLine("\n  Cobro de mantenimiento de 5.00 a todas las cuentas del banco (mejor esfuerzo):");
+IReadOnlyList<ResultadoTransaccion> reporte = procesador.EjecutarEnCadaCuenta(
+    banco, cuenta => new PagoServicio(cuenta, "Mantenimiento", 5.00m, "sistema", hoy));
+foreach (ResultadoTransaccion resultado in reporte)
+{
+    Console.WriteLine(resultado.FueAplicada
+        ? $"  Aplicada   {resultado.Transaccion.Descripcion}"
+        : $"  Rechazada  {resultado.Transaccion.Descripcion}\n             motivo: {resultado.MotivoRechazo}");
+}
+
+Console.WriteLine($"  → {reporte.Count(r => r.FueAplicada)} aplicadas y {reporte.Count(r => !r.FueAplicada)} rechazadas; " +
+                  "las rechazadas no tocaron sus cuentas.");
+ImprimirResumen(banco);
+
+// --------------------------------------------------------------------------
+// 6. Iterator (inciso c): el historial de una cuenta se recorre sin exponer
+// su lista interna, completo o filtrado por tipo de transacción.
+// --------------------------------------------------------------------------
+Titulo($"6. Iterator: historial de {corriente.Numero}");
+foreach (Asiento asiento in corriente.Historial())
+{
+    Console.WriteLine($"  {asiento.Transaccion.Descripcion,-46} {asiento.Naturaleza,-7} efecto {F(asiento.Efecto),8}" +
+                      (asiento.Revertido ? "  (revertido)" : ""));
+}
+
+Console.WriteLine($"\n  Solo las transferencias de {corriente.Numero}:");
+foreach (Asiento asiento in corriente.Historial<Transferencia>())
+{
+    Console.WriteLine($"  {asiento.Transaccion.Descripcion}");
+}
+
+void ImprimirResumen(GrupoCuentas raiz)
+{
+    ResumirPorGrupo resumir = new();
+    raiz.Aceptar(resumir);
+    foreach (ResumenGrupo grupo in resumir.Resumenes)
+    {
+        string nombre = new string(' ', 2 * grupo.Nivel) + grupo.Nombre;
+        string cuentasDelGrupo = grupo.Cuentas == 1 ? "1 cuenta " : $"{grupo.Cuentas} cuentas";
+        Console.WriteLine($"  {nombre,-22} {cuentasDelGrupo}  saldo {F(grupo.SaldoTotal),9}  cargos cobrados {F(grupo.CargosCobrados),6}");
+    }
+}
+
 void EstadoDeLasCuentas()
 {
     Console.WriteLine();

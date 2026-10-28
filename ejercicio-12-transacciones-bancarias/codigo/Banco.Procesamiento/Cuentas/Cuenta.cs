@@ -1,3 +1,4 @@
+using Banco.Procesamiento.Transacciones;
 using Banco.Procesamiento.Visitantes;
 
 namespace Banco.Procesamiento.Cuentas;
@@ -31,6 +32,29 @@ public abstract class Cuenta : ICuenta
 
     /// <inheritdoc />
     public abstract void Aceptar(IVisitanteCuenta visitante);
+
+    /// <summary>
+    /// Iterator (GoF): recorre las transacciones de la cuenta (sus asientos,
+    /// también los revertidos) en el orden en que se aplicaron, sin exponer la
+    /// lista interna: quien lo usa no puede agregar, quitar ni reordenar asientos.
+    /// Si la cuenta cambia mientras se recorre, el recorrido falla en vez de
+    /// devolver datos a medias.
+    /// </summary>
+    public IEnumerable<Asiento> Historial()
+    {
+        foreach (Asiento asiento in _asientos)
+        {
+            yield return asiento;
+        }
+    }
+
+    /// <summary>Iterator filtrado: los asientos de las transacciones con fecha en [desde, hasta).</summary>
+    public IEnumerable<Asiento> Historial(DateTime desde, DateTime hasta) =>
+        Historial().Where(a => a.Transaccion.Fecha >= desde && a.Transaccion.Fecha < hasta);
+
+    /// <summary>Iterator filtrado: los asientos de un tipo de transacción (p. ej. solo las transferencias).</summary>
+    public IEnumerable<Asiento> Historial<TTransaccion>() where TTransaccion : Transaccion =>
+        Historial().Where(a => a.Transaccion is TTransaccion);
 
     // Operaciones que usan los visitantes para cambiar el estado. Son internal:
     // fuera del ensamblado del banco solo se puede leer la cuenta. Es la forma
