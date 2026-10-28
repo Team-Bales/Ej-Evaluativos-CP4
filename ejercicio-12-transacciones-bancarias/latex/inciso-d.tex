@@ -1,0 +1,205 @@
+% Ejercicio 12, inciso d) — issue #9. Mismo contenido que inciso-d.md.
+% Fragmento sin preámbulo: lo incluye latex/main.tex, que ya pone el título del inciso.
+% \sloppy dentro de un grupo: los nombres largos en \texttt no se salen del margen,
+% y el ajuste no afecta a lo que sigue.
+\begingroup\sloppy
+
+\begin{quote}
+\itshape
+Visitor vs.\ añadir métodos a cada elemento. ¿Cuándo conviene cada uno? Usa la métrica de
+«número de cambios por nueva operación» y «número de cambios por nuevo tipo de elemento». ¿Qué
+pasa si el número de operaciones crece mucho más rápido que el número de tipos de cuenta?
+\end{quote}
+
+Las dos alternativas son:
+\begin{itemize}
+  \item \textbf{Visitor}, la solución de los incisos a--c: cada operación es una clase
+        visitante con un \texttt{Visitar} por tipo de cuenta.
+  \item \textbf{Métodos en cada elemento}, el «polimorfismo simple» del inciso~a: cada
+        operación es un método abstracto en \texttt{Cuenta} que cada cuenta redefine.
+\end{itemize}
+
+Se comparan con las dos métricas del enunciado, contando clases nuevas y clases existentes
+modificadas. Las cifras salen del propio proyecto: E~=~4 tipos de cuenta, y O~=~3 operaciones
+del enunciado (más las que se agregaron en los incisos~b y~c).
+
+\subsubsection{Las dos métricas}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm}
+                             >{\raggedright\arraybackslash}X
+                             >{\raggedright\arraybackslash}X}
+\toprule
+ & \textbf{Cambios por nueva operación} & \textbf{Cambios por nuevo tipo de cuenta} \\
+\midrule
+\textbf{Visitor} & 1 clase nueva; \textbf{0} clases modificadas & 1 clase nueva + la interfaz
+  del visitante + los \textbf{O} visitantes modificados \\
+\addlinespace
+\textbf{Métodos en cada elemento} & 0 clases nuevas; la clase base + las \textbf{E} cuentas
+  modificadas & 1 clase nueva que implementa las O operaciones; \textbf{0} clases
+  modificadas \\
+\bottomrule
+\end{tabularx}
+\caption{Cambios por nueva operación y por nuevo tipo de cuenta.}
+\end{table}
+
+Las dos métricas se oponen: lo que una alternativa hace fácil, la otra lo hace difícil. GoF lo
+resume así: Visitor facilita agregar operaciones (Gamma et al., 1994, p.~370) y dificulta
+agregar elementos, porque cada uno obliga a tocar todos los visitantes (p.~371).
+
+\textbf{El trabajo de escribir código es el mismo en las dos:} cada combinación de operación y
+tipo de cuenta necesita su cuerpo de método (un \texttt{Visitar} o un \texttt{override}). Lo
+que cambia es \textbf{dónde} va ese código:
+\begin{itemize}
+  \item en clases \textbf{nuevas}, que no rompen nada de lo que ya funciona y se prueban
+        solas;
+  \item o \textbf{modificando} clases que ya funcionan, con su riesgo de romperlas, de volver
+        a probarlas y de chocar con otros cambios en las mismas clases.
+\end{itemize}
+
+\paragraph{Medido en este proyecto.}
+\begin{itemize}
+  \item \textbf{Nueva operación con Visitor.} \texttt{CalcularIntereses} (inciso~b) está en un
+        commit aparte, \texttt{94e3d6a}, y \texttt{git show -{}-stat 94e3d6a} muestra 3
+        ficheros: la clase nueva, sus pruebas y su sección en \texttt{Program.cs}.
+        \textbf{Ninguna cuenta cambió.} Lo mismo pasó con \texttt{ResumirPorGrupo} y
+        \texttt{RecolectarCuentas} en el inciso~c: una clase nueva cada una.
+  \item \textbf{Nuevo tipo de cuenta con Visitor.} Se probó a agregar una
+        \texttt{CuentaNomina} hipotética con su \texttt{Visitar} en la interfaz. \textbf{El
+        compilador marcó 7 clases que había que cambiar:}
+        \begin{itemize}
+          \item los 6 visitantes (\texttt{EjecutarTransaccion}, \texttt{RevertirTransaccion},
+                \texttt{AuditarTransaccion}, \texttt{CalcularIntereses},
+                \texttt{ResumirPorGrupo} y \texttt{RecolectarCuentas});
+          \item el buscador de ciclos interno de \texttt{GrupoCuentas}.
+        \end{itemize}
+        Hay que sumarles la interfaz y los visitantes de prueba. Hoy, con O~=~6, un tipo de
+        cuenta nuevo cuesta 1 clase nueva y 8 modificadas. Que el programa no compile hasta
+        completarlos es una ventaja: ninguna operación se queda sin regla para la cuenta nueva.
+  \item \textbf{El mismo cambio con métodos en cada elemento.} Una operación nueva como
+        \texttt{CalcularIntereses} habría modificado \texttt{Cuenta} y las 4 cuentas: 5 clases
+        (6 si la operación también se aplica a los grupos del inciso~c). La
+        \texttt{CuentaNomina}, en cambio, sería 1 clase nueva y 0 modificadas.
+\end{itemize}
+
+\paragraph{Un caso intermedio: el Composite del inciso~c.}
+\texttt{GrupoCuentas} es un tipo de elemento nuevo, y con Visitor puro habría obligado a tocar
+todos los visitantes. No hizo falta, porque la interfaz ganó \texttt{EntrarEnGrupo} y
+\texttt{SalirDeGrupo} \textbf{con una implementación vacía por omisión} (C\# lo permite desde
+la versión~8). El costo fue 1 clase nueva y 1 interfaz modificada; ningún visitante cambió.
+
+GoF admite esta salida, pero como excepción (p.~371): funciona cuando existe un comportamiento
+razonable por omisión. Para un grupo lo hay: «no hacer nada al entrar ni al salir». Para una
+cuenta nueva no: cada operación tiene que decidir su regla, y ahí conviene que el compilador
+obligue a escribirla.
+
+\subsubsection{Escenarios de crecimiento}
+
+Partiendo del enunciado (E~=~4, O~=~3):
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.4cm}
+                             >{\raggedright\arraybackslash}X
+                             >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Escenario} & \textbf{Visitor} & \textbf{Métodos en cada elemento} \\
+\midrule
+\textbf{Agregar 5 operaciones} (congelar cuenta, calcular intereses, cierre de mes, estado de
+cuenta, cobrar mantenimiento)
+  & 5 clases nuevas, \textbf{0 modificadas}
+  & 0 nuevas; \textbf{25 modificaciones}: $5 \times$ (base + 4 cuentas), cada cuenta tocada
+    5 veces \\
+\addlinespace
+\textbf{Agregar 2 tipos de cuenta} (nómina, plazo fijo)
+  & 2 clases nuevas; la interfaz y los 3 visitantes modificados (\textbf{4 clases}, cada
+    visitante con 2 \texttt{Visitar} nuevos)
+  & 2 clases nuevas, \textbf{0 modificadas} \\
+\bottomrule
+\end{tabularx}
+\caption{Escenarios de crecimiento con E~=~4 y O~=~3.}
+\end{table}
+
+\subsubsection{¿Cuándo conviene cada uno?}
+
+\textbf{Visitor conviene cuando los tipos de elemento son estables y las operaciones cambian a
+menudo.} Es el caso de este banco:
+\begin{itemize}
+  \item un banco crea productos nuevos (tipos de cuenta) muy de vez en cuando;
+  \item el enunciado anticipa operaciones nuevas («congelar cuenta», «calcular intereses»);
+  \item en este mismo proyecto se agregaron 3 operaciones (intereses, resumen por grupo y
+        recolectar cuentas) y ningún tipo de cuenta.
+\end{itemize}
+GoF lo pone como condición del patrón: que las clases de la estructura rara vez cambien
+(p.~368).
+
+\textbf{Métodos en cada elemento conviene en tres situaciones:}
+\begin{itemize}
+  \item \textbf{Cuando los tipos crecen y las operaciones son estables.} Por ejemplo, un
+        catálogo de productos financieros que suma tipos de cuenta cada mes, siempre con las
+        mismas tres operaciones.
+  \item \textbf{Cuando las operaciones necesitan mucho estado interno de la cuenta.} Con
+        Visitor, la cuenta tiene que exponer ese estado al visitante, lo que debilita la
+        encapsulación (p.~372). Aquí se pagó ese precio con los contadores: lectura pública y
+        \texttt{set} interno.
+  \item \textbf{Cuando hay una o dos operaciones fijas.} En ese caso, la indirección del doble
+        despacho no aporta nada.
+\end{itemize}
+
+\subsubsection{¿Qué pasa si las operaciones crecen mucho más rápido que los tipos de cuenta?}
+
+\textbf{Visitor escala mucho mejor.} Su costo por operación nueva es \textbf{constante}:
+1 clase nueva y 0 modificadas, sin importar cuántas cuentas haya. Con métodos en cada
+elemento, el costo por operación \textbf{crece con E}, porque cada operación nueva toca la base
+y todas las cuentas.
+
+Por ejemplo, en un año con 10 operaciones nuevas y 1 tipo de cuenta nuevo, empezando con
+E~=~4 y O~=~3:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}
+                             >{\raggedright\arraybackslash}X
+                             >{\raggedright\arraybackslash}X}
+\toprule
+ & \textbf{Visitor} & \textbf{Métodos en cada elemento} \\
+\midrule
+10 operaciones nuevas & 10 clases nuevas, 0 modificadas & $10 \times 5$ = \textbf{50
+  modificaciones} \\
+\addlinespace
+1 tipo de cuenta nuevo & 1 clase nueva + interfaz + entre 3 y 13 visitantes modificados
+  (según cuándo llegue) & 1 clase nueva, 0 modificadas \\
+\addlinespace
+\textbf{Total de modificaciones} & \textbf{entre 4 y 14} & \textbf{50} \\
+\bottomrule
+\end{tabularx}
+\caption{Un año en el que las operaciones crecen mucho más rápido que los tipos de cuenta.}
+\end{table}
+
+\textbf{La otra cara:} con Visitor, cada tipo de cuenta nuevo cuesta más cuanto más
+operaciones haya ($1 + O$ modificaciones). Si algún día los tipos de cuenta empezaran a crecer
+tan rápido como las operaciones, la ventaja se invertiría. GoF lo plantea como la pregunta
+clave para elegir el patrón: qué es más probable que cambie, los algoritmos o las clases de la
+estructura (p.~371).
+
+Este dilema tiene nombre: el \textbf{problema de la expresión} (\emph{expression problem},
+Wadler, 1998). Consiste en extender a la vez los tipos de datos y las operaciones sin
+modificar el código existente. La programación orientada a objetos clásica facilita agregar
+tipos; Visitor invierte la balanza y facilita agregar operaciones. Las implementaciones por
+omisión de las interfaces, como en el inciso~c, suavizan el costo cuando existe un
+comportamiento razonable por omisión.
+
+\paragraph{Referencias.}
+Gamma, E., Helm, R., Johnson, R., y Vlissides, J. (1994). \emph{Design patterns: Elements of
+reusable object-oriented software}. Addison-Wesley. Los números de página corresponden a la
+copia del libro en la bibliografía de la asignatura (\emph{Documentacion Patrones}), igual que
+en los incisos anteriores.
+
+Wadler, P. (1998). \emph{The expression problem} [mensaje a la lista de correo
+Java-genericity].
+
+\endgroup
