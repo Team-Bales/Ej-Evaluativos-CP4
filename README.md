@@ -54,4 +54,4 @@ Esta tabla es la base de la portada del PDF. Cada uno completa su nombre y los i
 | Heily Rodríguez Rodríguez | @heilyrodriguez225 | Ej. 9 – incisos a, b |
 | | @Mackandal04 | |
 | | @QuiquiMatCom2004 | |
-| | @solerch5510 | |
+| Ernesto Alejandro Soler Choong | @solerch5510 | Ej. 12 – inciso a |
