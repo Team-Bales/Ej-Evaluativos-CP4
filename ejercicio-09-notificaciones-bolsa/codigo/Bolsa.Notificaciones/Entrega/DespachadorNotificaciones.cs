@@ -9,10 +9,11 @@ namespace Bolsa.Notificaciones.Entrega;
 /// En este inciso b) la entrega es inmediata y síncrona: Encolar procesa la
 /// cola al momento, para que la simulación sea determinista y las pruebas no
 /// dependan de hilos en segundo plano. La Channel queda ya como la cola del
-/// despachador; el inciso c) convertirá el envío en asíncrono y la restricción
-/// (E9-R) usará el repositorio para la entrega at-least-once con reintentos.
+/// despachador; el inciso c) convierte el envío en asíncrono con
+/// <see cref="DespachadorAsincrono"/> y la restricción (E9-R) usará el
+/// repositorio para la entrega at-least-once con reintentos.
 /// </summary>
-public sealed class DespachadorNotificaciones
+public sealed class DespachadorNotificaciones : IDespachadorNotificaciones
 {
     private readonly Channel<Notificacion> _cola =
         Channel.CreateUnbounded<Notificacion>(new UnboundedChannelOptions { SingleReader = true });

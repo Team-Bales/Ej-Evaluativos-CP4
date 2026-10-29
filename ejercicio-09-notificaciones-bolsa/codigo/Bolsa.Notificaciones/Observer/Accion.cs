@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Bolsa.Notificaciones.Diagnostico;
 
 namespace Bolsa.Notificaciones.Observer;
 
@@ -10,11 +11,19 @@ namespace Bolsa.Notificaciones.Observer;
 public sealed class Accion : ISujetoPrecio
 {
     private ImmutableList<IObservadorPrecio> _observadores = ImmutableList<IObservadorPrecio>.Empty;
+    private readonly IRegistroFallos _registro;
 
-    public Accion(string simbolo, decimal precioInicial)
+    /// <param name="simbolo">Símbolo bursátil.</param>
+    /// <param name="precioInicial">Precio con el que empieza a cotizar.</param>
+    /// <param name="registro">
+    /// Donde se anotan los observadores que fallan al actualizarse (inciso c).
+    /// Si no se indica, los fallos se escriben en la consola: nunca se callan.
+    /// </param>
+    public Accion(string simbolo, decimal precioInicial, IRegistroFallos? registro = null)
     {
         Simbolo = simbolo;
         Precio = precioInicial;
+        _registro = registro ?? new RegistroFallos();
     }
 
     /// <summary>Símbolo bursátil de la acción (p. ej. AAPL).</summary>
@@ -39,12 +48,29 @@ public sealed class Accion : ISujetoPrecio
         Notificar(new CambioPrecio(Simbolo, precioAnterior, precioNuevo, DateTimeOffset.Now));
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Entrega el cambio a todos los observadores, aislando a cada uno
+    /// (inciso c). En el Observer clásico de GoF el bucle llama a
+    /// <c>Actualizar</c> sin protección: la primera excepción lo corta y los
+    /// suscriptores que vienen detrás se quedan sin su aviso. Aquí el fallo de
+    /// una alerta se registra y el recorrido continúa, porque un cliente que no
+    /// se puede notificar no debe silenciar a los otros 999.
+    /// </summary>
     public void Notificar(CambioPrecio cambio)
     {
         foreach (IObservadorPrecio observador in _observadores)
         {
-            observador.Actualizar(cambio);
+            try
+            {
+                observador.Actualizar(cambio);
+            }
+            catch (Exception error)
+            {
+                _registro.Registrar(
+                    nameof(Accion),
+                    $"{Simbolo}: un observador falló al actualizarse y se omitió",
+                    error);
+            }
         }
     }
 

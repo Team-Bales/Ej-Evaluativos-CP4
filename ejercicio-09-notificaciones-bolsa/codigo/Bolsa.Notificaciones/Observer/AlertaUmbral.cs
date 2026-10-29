@@ -12,9 +12,14 @@ namespace Bolsa.Notificaciones.Observer;
 /// </summary>
 public sealed class AlertaUmbral : IObservadorPrecio
 {
-    private readonly DespachadorNotificaciones _despachador;
+    private readonly IDespachadorNotificaciones _despachador;
 
-    public AlertaUmbral(Cliente cliente, decimal umbral, Direccion direccion, DespachadorNotificaciones despachador)
+    /// <param name="despachador">
+    /// La alerta solo encola, así que depende de la interfaz y no de una
+    /// implementación: el inciso b) le pasa el despachador síncrono y el
+    /// inciso c) el asíncrono, sin cambiar nada de esta clase.
+    /// </param>
+    public AlertaUmbral(Cliente cliente, decimal umbral, Direccion direccion, IDespachadorNotificaciones despachador)
     {
         Cliente = cliente;
         Umbral = umbral;

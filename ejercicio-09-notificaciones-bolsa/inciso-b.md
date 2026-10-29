@@ -31,7 +31,7 @@ Hay que indicar `--project` porque la carpeta tiene dos proyectos (el programa y
 | `Entrega/CanalEmail.cs`, `CanalSms.cs`, `CanalPush.cs` | `CanalEmail`, `CanalSms`, `CanalPush` | Los 3 canales; el envío se simula en la consola |
 | `Entrega/DespachadorNotificaciones.cs` | `DespachadorNotificaciones` | Entrega por el canal del cliente y guarda en el repositorio |
 | `Entrega/IRepositorioNotificaciones.cs`, `RepositorioMemoria.cs` | `IRepositorioNotificaciones`, `RepositorioMemoria` | Registro de las notificaciones entregadas |
-| `Program.cs` | — | La simulación |
+| `Demos/SimulacionBolsa.cs` | — | La simulación |
 | `Bolsa.Notificaciones.Tests/` | — | Pruebas unitarias |
 
 ## Regla de disparo
@@ -125,6 +125,6 @@ Lo que muestra:
 
 ## Decisiones de esta implementación
 
-- **El despachador entrega de forma síncrona.** `Encolar` deja la notificación en la cola (`Channel<Notificacion>`) y la procesa al momento. Así la simulación es determinista y las pruebas no dependen de hilos. El inciso c convierte ese envío en asíncrono sin cambiar las alertas, que solo encolan.
+- **El despachador entrega de forma síncrona.** `Encolar` deja la notificación en la cola (`Channel<Notificacion>`) y la procesa al momento. Así la simulación es determinista y las pruebas no dependen de hilos. El inciso c convierte ese envío en asíncrono sin cambiar su lógica: las alertas solo encolan.
 - **El repositorio está en memoria.** `RepositorioMemoria` registra las notificaciones entregadas. La restricción (E9-R) añadirá una implementación persistente y los reintentos; el despachador no cambia, porque solo conoce `IRepositorioNotificaciones`.
 - **El envío es simulado:** cada canal escribe el aviso en la consola con su tipo y el contacto del cliente.
