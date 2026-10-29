@@ -24,6 +24,7 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
     private readonly TimeSpan _esperaBase;
     private readonly object _bloqueo = new();
     private readonly List<Notificacion> _fallosDefinitivos = [];
+    private readonly List<Task> _temporizadoresPendientes = [];
 
     private int _enProceso;
     private int _entregadas;
@@ -59,8 +60,11 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
         _cola = Channel.CreateBounded<EnvioPendiente>(new BoundedChannelOptions(capacidad)
         {
             // La cola acotada es la pieza del backpressure: cuando se llena hay
-            // que decidir qué pasa. Encolar no espera nunca (ver TryWrite), así
-            // que este modo solo actúa en los reintentos.
+            // que decidir qué pasa. Aquí siempre se usa TryWrite (Encolar y
+            // Reprogramar), que nunca espera: devuelve false y el llamador
+            // rechaza o descarta. FullMode.Wait solo afecta a WriteAsync y a
+            // WaitToWriteAsync, que no usamos; como nunca escribimos con
+            // WriteAsync, este modo no se activa en ningún camino.
             FullMode = BoundedChannelFullMode.Wait,
             SingleReader = false,
             SingleWriter = false,
@@ -143,10 +147,26 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
         }
     }
 
-    /// <summary>Cierra la cola y espera a que los consumidores terminen.</summary>
+    /// <summary>
+    /// Cierra la cola, espera a que se resuelvan los reintentos programados y
+    /// luego a que los consumidores terminen. Con la cola cerrada, un reintento
+    /// que no puede reencolarse se registra y pasa a fallo definitivo en vez de
+    /// quedar en el aire.
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
         _cola.Writer.TryComplete();
+
+        // Resuelve primero los temporizadores de reintento pendientes: con la
+        // cola cerrada, su TryWrite falla, se registra y pasan a dead letter.
+        // Después los consumidores drenan lo que quede en vuelo y salen.
+        Task[] temporizadores;
+        lock (_bloqueo)
+        {
+            temporizadores = _temporizadoresPendientes.ToArray();
+        }
+        await Task.WhenAll(temporizadores);
+
         await Task.WhenAll(_consumidores);
     }
 
@@ -198,17 +218,38 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
         Interlocked.Increment(ref _reintentos);
         TimeSpan espera = _esperaBase * Math.Pow(2, envio.Intentos - 1);
 
-        _ = Task.Delay(espera).ContinueWith(
+        Task temporizador = Task.Delay(espera).ContinueWith(
             _ =>
             {
                 if (!_cola.Writer.TryWrite(envio))
                 {
+                    // La cola está llena o se cerró al disponer el despachador:
+                    // se registra antes de pasar el aviso a fallo definitivo,
+                    // nunca en silencio.
+                    _registro.Registrar(
+                        nameof(DespachadorAsincrono),
+                        $"no se pudo reencolar el aviso de {envio.Notificacion.Cliente.Contacto}; la cola está llena o cerrada, se descarta");
+
                     DarPorPerdida(envio.Notificacion);
                 }
             },
             CancellationToken.None,
             TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default);
+
+        lock (_bloqueo)
+        {
+            _temporizadoresPendientes.Add(temporizador);
+        }
+
+        _ = temporizador.ContinueWith(
+            _ =>
+            {
+                lock (_bloqueo)
+                {
+                    _temporizadoresPendientes.Remove(temporizador);
+                }
+            });
     }
 
     private void DarPorPerdida(Notificacion notificacion)

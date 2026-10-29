@@ -243,6 +243,8 @@ Qué ocurre con el siguiente tick & llega mientras el anterior sigue enviando; l
 \caption{El costo de bloquear el hilo del sujeto.}
 \end{table}
 
+46,2\,s es una estimación del problema: 231 avisos del tick 10 a 200\,ms cada uno. No es una medida de esta máquina: es el tiempo que la entrega síncrona le haría pagar al hilo de cotización antes de poder seguir.
+
 Una plataforma de trading no puede detener la cotización durante 46 segundos para mandar
 SMS. Y el problema no es solo de rendimiento: es de \textbf{responsabilidades}. Que
 \texttt{Accion} se bloquee por un proveedor de SMS significa que el sujeto quedó acoplado al
