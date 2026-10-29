@@ -43,7 +43,7 @@ sus pruebas). No hace falta ningún paso manual: \texttt{dotnet} descarga xUnit 
 \texttt{Entrega/Canal\{Email,Sms,Push\}.cs} & Los 3 canales; el envío se simula en la consola \\
 \texttt{Entrega/DespachadorNotificaciones.cs} & Entrega por el canal del cliente y guarda en el repositorio \\
 \texttt{Entrega/IRepositorioNotificaciones.cs},\newline\texttt{Entrega/RepositorioMemoria.cs} & Registro de las notificaciones entregadas \\
-\texttt{Program.cs} & La simulación \\
+\texttt{Demos/SimulacionBolsa.cs} & La simulación \\
 \texttt{Bolsa.Notificaciones.Tests/} & Pruebas unitarias \\
 \bottomrule
 \end{tabularx}
@@ -141,7 +141,7 @@ public void Notificar(CambioPrecio cambio)
         mismos precios y avisos en cada ejecución.
 \end{itemize}
 
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={\texttt{Program.cs}: cada alerta es un observador con su propio umbral.}]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={\texttt{Demos/SimulacionBolsa.cs}: cada alerta es un observador con su propio umbral.}]
 decimal porcentaje = 0.1m + 0.12m * orden;
 decimal umbral = Math.Round(
     direccion == Direccion.Sube
@@ -253,7 +253,7 @@ public void NoNotifica_DespuesDeDesuscribirse()
   \item \textbf{El despachador entrega de forma síncrona.} \texttt{Encolar} deja la
         notificación en la cola (\texttt{Channel<Notificacion>}) y la procesa al momento. Así
         la simulación es determinista y las pruebas no dependen de hilos. El inciso c
-        convierte ese envío en asíncrono sin cambiar las alertas, que solo encolan.
+        convierte ese envío en asíncrono sin cambiar su lógica: las alertas solo encolan.
   \item \textbf{El repositorio está en memoria.} \texttt{RepositorioMemoria} registra las
         notificaciones entregadas. La restricción (E9-R) añadirá una implementación
         persistente y los reintentos; el despachador no cambia, porque solo conoce

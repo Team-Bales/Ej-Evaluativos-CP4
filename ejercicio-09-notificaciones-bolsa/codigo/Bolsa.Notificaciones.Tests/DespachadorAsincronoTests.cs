@@ -153,6 +153,54 @@ public sealed class DespachadorAsincronoTests
         Assert.Equal(100, despachador.Entregadas + despachador.Rechazadas);
     }
 
+    [Fact]
+    public async Task ElReintentoQueNoPuedeReencolarseSeRegistraYPasaAFalloDefinitivo()
+    {
+        // Cuando el reintento encuentra la cola cerrada (despachador
+        // disponible), su TryWrite falla: se registra con _registro.Registrar
+        // antes de pasar el aviso a FallosDefinitivos, nunca en silencio.
+        RegistroDePrueba registro = new();
+        DespachadorAsincrono despachador = new(
+            new RepositorioMemoria(), registro,
+            consumidores: 1, capacidad: 10, maxIntentos: 3, esperaBase: TimeSpan.FromMilliseconds(50));
+
+        CanalQueFalla canal = new(new CanalDePrueba(), int.MaxValue);
+        Notificacion aviso = new(
+            Guid.NewGuid(), new Cliente("C1", "c1@correo.cu", canal), "reintento truncado");
+        despachador.Encolar(aviso);
+
+        // El consumidor falla el primer envío y programa el reintento (25 ms).
+        await EsperarQue(() => despachador.Reintentos > 0, "el primer reintento se programa");
+
+        // Cerrar el despachador hace que el temporizador pendiente falle su
+        // TryWrite: se registra antes del dead letter, nunca en silencio.
+        await despachador.DisposeAsync();
+
+        Assert.Equal(1, canal.Intentos);
+        Assert.Equal(0, despachador.Entregadas);
+        Assert.Single(despachador.FallosDefinitivos);
+        Assert.Equal(aviso, Assert.Single(despachador.FallosDefinitivos));
+        Assert.Contains(
+            registro.Fallos,
+            fallo => fallo.Contains("no se pudo reencolar"));
+    }
+
+    private static async Task EsperarQue(Func<bool> condicion, string descripcion)
+    {
+        var tope = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(5);
+        while (DateTimeOffset.UtcNow < tope)
+        {
+            if (condicion())
+            {
+                return;
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(1));
+        }
+
+        throw new InvalidOperationException($"Tiempo de espera agotado: {descripcion}.");
+    }
+
     private static DespachadorAsincrono Crear(IRepositorioNotificaciones repositorio) =>
         new(repositorio, new RegistroDePrueba(), consumidores: 4, maxIntentos: 3, esperaBase: EsperaCorta);
 }

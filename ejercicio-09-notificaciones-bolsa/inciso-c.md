@@ -200,6 +200,8 @@ Las cuentas de este problema concreto lo dejan claro. En el tick 10 de la simula
 | Tiempo del cambio de precio | 231 × 200 ms = **46,2 s** | lo que cuesta encolar: **< 1 ms** |
 | Qué ocurre con el siguiente tick | llega mientras el anterior sigue enviando; la cotización se atrasa sin límite | se atiende de inmediato |
 
+46,2 s es una estimación del problema: 231 avisos del tick 10 multiplicados por 200 ms por envío. No es una medida de esta máquina: es el tiempo que la entrega síncrona le haría pagar al hilo de cotización antes de poder seguir.
+
 Una plataforma de trading no puede detener la cotización durante 46 segundos para mandar SMS. Y el problema no es solo de rendimiento: es de **responsabilidades**. Que `Accion` se bloquee por un proveedor de SMS significa que el sujeto quedó acoplado al costo de sus observadores, justo lo que GoF advierte que el patrón no controla (Gamma et al., 1994, p. 330).
 
 ### 2.2 La solución: una cola entre detectar y enviar
@@ -244,7 +246,7 @@ Tres decisiones de diseño, con su razón:
 | Decisión | Por qué |
 |---|---|
 | **`System.Threading.Channels`** y no una `Queue` con `lock` | `Channel<T>` es una cola productor-consumidor pensada para esto: los consumidores esperan con `await` sin consumir CPU, y `ReadAllAsync` reparte los elementos entre varios lectores sin que haya que sincronizar a mano. |
-| **Cola acotada** (`CreateBounded`) y no ilimitada | Una cola ilimitada convierte una caída del proveedor en memoria creciente hasta agotar el proceso. Acotada, el sistema tiene que decidir qué hacer cuando se llena; esa decisión es el *backpressure* del [inciso d](#). |
+| **Cola acotada** (`CreateBounded`) y no ilimitada | Una cola ilimitada convierte una caída del proveedor en memoria creciente hasta agotar el proceso. Acotada, el sistema tiene que decidir qué hacer cuando se llena; esa decisión es el *backpressure* del inciso d. |
 | **`TryWrite` y no `WriteAsync`** | `WriteAsync` esperaría cuando la cola está llena, y esa espera la pagaría otra vez el hilo del cambio de precio. Con `TryWrite` el sujeto nunca espera: en el peor caso la notificación se rechaza y queda registrada. |
 
 ### 2.3 La medición
