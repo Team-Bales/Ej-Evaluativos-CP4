@@ -52,6 +52,6 @@ Esta tabla es la base de la portada del PDF. Cada uno completa su nombre y los i
 | Nombre | GitHub | Ejercicio / inciso |
 |---|---|---|
 | Heily Rodríguez Rodríguez | @heilyrodriguez225 | Ej. 9 – incisos a, b |
-| | @Mackandal04 | |
+| Mauricio Brindo Carbo | @Mackandal04 | |
 | Enrique González Moreira | @QuiquiMatCom2004 | Ej. 9 – incisos c, d |
 | Ernesto Alejandro Soler Choong | @solerch5510 | Ej. 12 – incisos a, b, c, d y restricción |
