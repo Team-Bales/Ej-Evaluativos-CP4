@@ -206,6 +206,8 @@ Una plataforma de trading no puede detener la cotización durante 46 segundos pa
 
 ### 2.2 La solución: una cola entre detectar y enviar
 
+Entre el observador que detecta el cruce y el canal que entrega el aviso se mete una cola acotada, y el envío pasa a hacerlo un grupo de consumidores en segundo plano.
+
 ![Entrega asíncrona del inciso c](diagramas/inciso-c-entrega-asincrona.png)
 
 *Versión vectorial: [`diagramas/inciso-c-entrega-asincrona.svg`](diagramas/inciso-c-entrega-asincrona.svg).*
