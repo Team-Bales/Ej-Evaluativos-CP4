@@ -31,7 +31,7 @@ dotnet test                                                                  # 2
 - **Las dos fases se miden por separado**, porque solo una cambia de orden: *detectar* a quién avisar y *entregar* los avisos.
 - **Semillas y umbrales deterministas:** el benchmark es reproducible.
 
-**Máquina:** Intel Core i5-7300U @ 2,60 GHz (2 núcleos, 4 hilos), 15 GiB de RAM, Garuda Linux x64 (kernel 7.2.11-zen), .NET SDK 10.0.113 / runtime 10.0.13, GC de estación de trabajo.
+**Máquina:** Intel Core i5-7300U @ 2,60 GHz (2 núcleos, 4 hilos), 15 GiB de RAM, Garuda Linux x64 (kernel 7.2.11-zen), .NET SDK 10.0.113 / runtime 10.0.13, GC de estación de trabajo. Commit medido: 43820e0.
 
 ### Los dos escenarios
 
