@@ -6,6 +6,7 @@ using Bolsa.Notificaciones.Demos;
 //   dotnet run --project Bolsa.Notificaciones                  → inciso b)
 //   dotnet run --project Bolsa.Notificaciones -- asincrono     → inciso c)
 //   dotnet run --project Bolsa.Notificaciones -- rendimiento   → inciso d)
+//   dotnet run --project Bolsa.Notificaciones -- restriccion   → restricción E9-R
 //
 // El modo por omisión es la simulación del inciso b), para que el comando del
 // README de ese inciso siga haciendo lo mismo que antes.
@@ -28,8 +29,12 @@ switch (modo)
         await BenchmarkRendimiento.EjecutarAsync(args.Length > 1 ? args[1] : null);
         return 0;
 
+    case "restriccion":
+        await DemoPersistencia.EjecutarAsync();
+        return 0;
+
     default:
         Console.Error.WriteLine($"Modo desconocido: «{modo}».");
-        Console.Error.WriteLine("Modos: simulacion (inciso b), asincrono (inciso c), rendimiento (inciso d).");
+        Console.Error.WriteLine("Modos: simulacion (inciso b), asincrono (inciso c), rendimiento (inciso d), restriccion (E9-R).");
         return 1;
 }

@@ -1,15 +1,22 @@
 % Ejercicio 9, restricción — issue #5. Entrega at-least-once y persistencia de notificaciones fallidas.
 % Fragmento sin preámbulo: lo incluye latex/main.tex, que ya pone el título del inciso.
+% Todo el código que aparece aquí está en el repositorio, en
+% ejercicio-09-notificaciones-bolsa/codigo/, y lo ejecutan las pruebas.
 
 \begin{quote}
 \itshape
 El sistema debe garantizar entrega \emph{at-least-once} y persistir notificaciones fallidas.
 \end{quote}
 
-La entrega asíncrona del inciso~c ya aísla fallos y reintenta en memoria, pero un reinicio del proceso
-pierde lo que está en vuelo. La restricción exige que las notificaciones no se pierdan entre reinicios
-y que un cliente nunca quede sin aviso si el canal falla de forma transitoria. Para eso se añade
-persistencia y el patrón \emph{outbox} antes de enviar.
+La entrega asíncrona del inciso~c aísla los fallos y reintenta, pero toda esa estructura vive
+\textbf{en memoria}: si el proceso se cae, lo que estaba en vuelo se pierde. La restricción pide
+dos cosas que se apoyan en la misma decisión de diseño: \textbf{escribir la notificación en un
+almacén durable antes de intentar enviarla} (patrón \emph{outbox}) y \textbf{no borrar nada que
+no se haya confirmado}. Con eso, un aviso que falló sigue en el disco y un aviso a medias se
+recupera al reiniciar.
+
+La implementación es real y está en el repositorio: repositorio persistente en archivo, estados
+durables, recuperación al arrancar y siete pruebas que lo comprueban.
 
 \subsubsection{Respuesta corta}
 
@@ -21,152 +28,304 @@ persistencia y el patrón \emph{outbox} antes de enviar.
 \textbf{Pregunta} & \textbf{Respuesta} \\
 \midrule
 ¿Cómo se garantiza \emph{at-least-once}? &
-La notificación se escribe en un repositorio persistente \textbf{antes} de encolarse para envío y
-solo se marca como entregada cuando el canal confirma. Si el proceso cae, las pendientes se
-recuperan al reiniciar. \\
+La notificación se escribe en el outbox \textbf{antes} de encolarse para el envío y solo se
+marca como \texttt{Entregada} cuando el canal confirma. Si el proceso se cae, lo pendiente sigue
+en el disco y otro proceso lo envía al arrancar. \\
 \addlinespace
-¿Se envía dos veces? &
-Puede. Por eso cada notificación lleva un \texttt{Id} único y el canal / repositorio verifica
-idempotencia; un reenvío con el mismo \texttt{Id} no produce efecto visible para el cliente. \\
+¿Se puede enviar dos veces? &
+Sí: \emph{at-least-once} lo permite. Por eso la fila del outbox se identifica por el
+\texttt{Id} de la notificación y el registro es un \emph{upsert}: reenviar el mismo aviso no
+crea una segunda fila. \\
 \addlinespace
 ¿Qué pasa si el envío sigue fallando? &
-Se reintenta con \emph{backoff} exponencial. Agotados \texttt{MaxIntentos}, la notificación va a
-\emph{dead letter} para inspección manual. \\
+Se reintenta con espera creciente (\emph{backoff} exponencial). Agotados los intentos, la
+notificación queda como \texttt{FalloDefinitivo} (\emph{dead letter}) con su último error, y no
+se borra: un operador puede reintentarla. \\
 \addlinespace
-¿Dónde vive la persistencia? &
-En \texttt{IRepositorioNotificaciones} y en una tabla de \emph{outbox}. El
-\texttt{DespachadorAsincrono} no cambia su contrato: sigue consumiendo de la cola, pero ahora
-la cola se alimenta de datos persistidos. \\
+¿Qué cambia respecto al inciso~c? &
+Solo el almacén. El despachador sigue hablando con \texttt{IRepositorioNotificaciones} y, si el
+repositorio que recibe además implementa \texttt{IRepositorioOutbox}, persiste antes de enviar.
+Con un repositorio en memoria, el comportamiento es idéntico al del inciso~c. \\
 \bottomrule
 \end{tabularx}
 \caption{La restricción en breve.}
 \end{table}
 
-\subsubsection{Outbox y escritura antes del envío}
+\subsubsection{El outbox: escribir antes de enviar}
 
-El problema del inciso~c es que la cola \texttt{Channel<T>} vive en memoria. La solución es separar
-\textbf{detectar} de \textbf{enviar} con una confirmación durable:
+El despacho del inciso~c ya tenía la forma correcta: \texttt{Encolar} no espera a ningún canal y
+los consumidores envían en segundo plano. Lo que le faltaba era la \textbf{durabilidad}. La
+solución es una capacidad opcional del repositorio, \texttt{IRepositorioOutbox}, que el
+despachador detecta sin cambiar de contrato:
 
-\begin{enumerate}
-  \item \texttt{AlertaUmbral.Actualizar} detecta el cruce y crea la \texttt{Notificacion}.
-  \item \texttt{IDespachadorNotificaciones.Encolar} hace dos cosas atómicamente:
-        \begin{itemize}
-          \item guarda la notificación en \texttt{IRepositorioNotificaciones} con estado
-                \texttt{Pendiente};
-          \item escribe el mismo registro en la tabla \emph{outbox} que el despachador lee.
-        \end{itemize}
-  \item El consumidor en segundo plano intenta el envío.
-  \item Si el canal confirma, el repositorio actualiza a \texttt{Entregada} y borra la entrada de
-        \emph{outbox}.
-\end{enumerate}
-
-Con eso, incluso si el proceso se cae entre el paso 2 y 4, al reiniciar el despachador vuelve a leer
-las notificaciones pendientes de la tabla \emph{outbox} y las reintenta. La notificación nunca se
-crea después de intentar enviarla: primero persiste, después se envía.
-
-\subsubsection{Idempotencia}
-
-\textit{At-least-once} implica duplicados posibles. La clave está en el \texttt{Id} de la
-\texttt{Notificacion}, que se genera en el momento de crearla y se conserva en todo el flujo:
-
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={\texttt{RepositorioPersistente}: idempotencia en guardar y marcar entregada.}]
-public void Guardar(Notificacion n)
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={El despachador persiste antes de encolar (solo si el repositorio sabe hacerlo).}]
+public void Encolar(Notificacion notificacion)
 {
-    if (_db.Existe(n.Id)) return;               // reenvío: ya está guardada
-    _db.Insert(n with { Estado = Pendiente });
-}
+    // Outbox: la notificación queda en el disco ANTES de que se intente enviar.
+    _outbox?.RegistrarPendiente(notificacion, intentos: 0);
 
-public void MarcarEntregada(Guid id)
-{
-    _db.UpdateEstado(id, Entregada);            // operación idempotente
+    Interlocked.Increment(ref _enProceso);
+    if (_cola.Writer.TryWrite(new EnvioPendiente(notificacion, Intentos: 0)))
+    {
+        return;
+    }
+    // ... cola llena: el aviso sigue pendiente en el outbox, no se pierde.
 }
 \end{lstlisting}
 
-Los canales que soportan \emph{dedupe} pueden usar el mismo \texttt{Id} para no crear dos correos.
-En la práctica basta con que el repositorio no inserte duplicados y que la actualización de estado sea
-idempotente.
+La línea que decide todo es la primera: entre \texttt{RegistrarPendiente} y \texttt{TryWrite} hay
+una ventana en la que el aviso \textbf{ya está en el disco y todavía no se ha enviado}. Si el
+proceso muere ahí, el aviso se recupera al siguiente arranque. Ese es el sentido de
+\emph{at-least-once}: la entrega ocurre \emph{al menos una vez}, y el precio de esa garantía es que
+puede ocurrir dos veces.
 
-\subsubsection{Reintentos con backoff y dead letter}
+\subsubsection{Los estados durables}
 
-El \texttt{DespachadorAsincrono} del inciso~c ya maneja reintentos. Con persistencia se conserva el
-contador de intentos:
-
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={Reintento persistente con backoff exponencial.}]
-int intentos = envio.Intentos + 1;
-if (intentos >= MaxIntentos)
-{
-    _repositorio.MoverADeadLetter(envio.Notificacion);
-    return;
-}
-await Task.Delay(BackoffInicial * 2^{intentos-1});
-Reprogramar(envio with { Intentos = intentos });
-\end{lstlisting}
-
-\textbf{Backoff exponencial} evita saturar un proveedor caído. Cada notificación lleva su propio
-reloj de reintentos, guardado en el repositorio, así que el reinicio no pierde la cuenta.
-
-Las notificaciones en \emph{dead letter} quedan visibles para operatoria:
-\begin{itemize}
-  \item se registran con el último error;
-  \item pueden reintentarse manualmente;
-  \item no se borran automáticamente para no perder evidencia.
-\end{itemize}
-
-\subsubsection{Reinicio y recuperación}
-
-Al iniciar la aplicación:
-\begin{enumerate}
-  \item se leen las notificaciones con estado \texttt{Pendiente} o \texttt{EnProceso} del
-        repositorio;
-  \item se vuelven a encolar en el \texttt{Channel} con el número de intentos ya guardado;
-  \item el despachador continúa como si no hubiera habido caída.
-\end{enumerate}
-
-Esto garantiza que una notificación creada antes del reinicio nunca desaparece. La única pérdida
-posible es la que el operador decide al vaciar \emph{dead letter}, que es explícita y auditable.
-
-\subsubsection{Cambios respecto al inciso c}
+Cada fila del outbox tiene tres estados, que son los que permiten saber qué se puede borrar y
+qué no:
 
 \begin{table}[H]
 \centering
 \small
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.6cm}}
 \toprule
-\textbf{Componente} & \textbf{Cambio} \\
+\textbf{Estado} & \textbf{Cuándo se pone} & \textbf{Qué implica} \\
 \midrule
-\texttt{IRepositorioNotificaciones} & Implementación persistente (p. ej. SQLite/PostgreSQL) en lugar de sólo memoria. \\
-\texttt{DespachadorAsincrono} & Antes de \texttt{TryWrite} persiste la notificación; al confirmar borra de \emph{outbox}. \\
-\texttt{Notificacion} & Añade \texttt{Id}, \texttt{Estado} y \texttt{Intentos}. \\
-\texttt{Program} & Al arrancar ejecuta \texttt{RecuperarPendientes} antes de iniciar consumidores. \\
+\texttt{Pendiente} & al encolar, antes de intentar el envío & se reintentará; si el proceso se cae, se recupera al reiniciar \\
+\addlinespace
+\texttt{Entregada} & cuando el canal confirma & ya no hay nada que reintentar \\
+\addlinespace
+\texttt{FalloDefinitivo} & al agotar los intentos (\emph{dead letter}) & no se borra: queda con su último error para que un operador lo resuelva \\
 \bottomrule
 \end{tabularx}
-\caption{Impacto mínimo sobre el diseño anterior.}
+\caption{Los tres estados del outbox.}
 \end{table}
 
-El patrón Observer no cambia. La detección sigue siendo síncrona y barata; la entrega sigue siendo
-asíncrona, aislada y con reintentos. Lo que cambia es que ahora el \emph{estado de entrega} es durable,
-lo que convierte la entrega asíncrona en \emph{at-least-once} incluso ante caídas y reinicios.
+\subsubsection{Idempotencia}
+
+Un aviso reenviado no puede crear una segunda fila. La clave es el \texttt{Id} de la
+\texttt{Notificacion}, que se genera al crearla y viaja con ella por todo el flujo:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={El registro es un \emph{upsert} por \texttt{Id}: reenviar no duplica.}]
+private void Upsert(RegistroOutbox registro)
+{
+    if (!_registros.ContainsKey(registro.Id))
+    {
+        _orden.Add(registro.Id);
+    }
+
+    _registros[registro.Id] = registro;
+    Volcar();
+}
+\end{lstlisting}
+
+Y al registrar un aviso que ya estaba entregado, el repositorio no lo reabre:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true]
+public void RegistrarPendiente(Notificacion notificacion, int intentos)
+{
+    RegistroOutbox? existente = Buscar(notificacion.Id);
+
+    // Idempotencia: un aviso ya entregado no se vuelve a abrir. Si el mismo
+    // Id llega otra vez, es un reenvío, no una notificación nueva.
+    if (existente is not null && existente.Estado == EstadoNotificacion.Entregada)
+    {
+        return;
+    }
+    // ...
+}
+\end{lstlisting}
+
+\subsubsection{Reintentos con backoff y \emph{dead letter} persistido}
+
+El backoff del inciso~c se conserva intacto; lo que se añade es que cada desenlace queda
+escrito:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={Los tres desenlaces del envío, y lo que queda en el outbox.}]
+// El canal confirma:
+_repositorio.Guardar(envio.Notificacion);
+_outbox?.MarcarEntregada(envio.Notificacion.Id);
+
+// El canal falla y quedan intentos:
+_outbox?.MarcarReintento(envio.Notificacion.Id, intentos, error.Message);
+Reprogramar(envio with { Intentos = intentos });
+
+// Se agotaron los intentos: dead letter, no se borra.
+DarPorPerdida(envio.Notificacion, intentos, error.Message);
+\end{lstlisting}
+
+El contador de intentos \textbf{vive en el outbox}, no en la cola: por eso un reinicio no reinicia
+la cuenta. Un aviso que ya falló dos veces y se recupera al tercer intento sigue llevando
+\texttt{intentos = 2} después de la caída.
+
+\subsubsection{Reinicio y recuperación}
+
+Al arrancar, el proceso abre el outbox y devuelve a la cola lo que quedó pendiente:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={Recuperar lo pendiente y reencolarlo con su contador de intentos.}]
+public int RecuperarPendientes()
+{
+    IReadOnlyList<EnvioPendiente> pendientes = _outbox.PendientesParaReintentar();
+    int recuperadas = 0;
+
+    foreach (EnvioPendiente envio in pendientes)
+    {
+        if (_cola.Writer.TryWrite(envio))
+        {
+            Interlocked.Increment(ref _enProceso);
+            recuperadas++;
+        }
+    }
+
+    return recuperadas;
+}
+\end{lstlisting}
+
+Un detalle que no es trivial: \textbf{el canal no se serializa}. Lo que se guarda en el archivo es
+el \emph{tipo} del canal (por ejemplo \texttt{CanalEmail}), y al recuperar el aviso se reconstruye
+con una fábrica:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true]
+public sealed class FabricaCanales : IFabricaCanales
+{
+    public ICanalNotificacion? Crear(string tipoCanal) => tipoCanal switch
+    {
+        nameof(CanalEmail) => new CanalEmail(),
+        nameof(CanalSms)    => new CanalSms(),
+        nameof(CanalPush)   => new CanalPush(),
+        _ => null,   // tipo desconocido: el aviso no se pierde, queda pendiente
+    };
+}
+\end{lstlisting}
+
+Si el tipo no se puede reconstruir, el aviso \textbf{no se descarta}: sigue pendiente en el
+outbox y queda listado en \texttt{NoRecuperables} para que un operador lo resuelva.
+
+\subsubsection{Dónde vive la persistencia}
+
+En este ejercicio, en un archivo JSON con reemplazo atómico: se escribe a un archivo temporal y
+se renombra, para que un corte a mitad de guardado no deje el outbox a medias.
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={La escritura al disco es atómica: temporal y renombrado.}]
+private void Volcar()
+{
+    string temporal = _ruta + ".tmp";
+    File.WriteAllText(temporal, json);
+    File.Move(temporal, _ruta, overwrite: true);
+}
+\end{lstlisting}
+
+Si el archivo está dañado, el repositorio \textbf{falla en voz alta} en vez de continuar como si
+el outbox estuviera vacío: un archivo corrupto significa notificaciones perdidas en silencio, y
+eso es justo lo que la restricción quiere evitar.
+
+\subsubsection{Límites del diseño}
+
+Conviene ser explícito sobre lo que esta solución \emph{no} resuelve:
+
+\begin{itemize}
+  \item \textbf{Un solo proceso escritor.} Dos instancias sobre el mismo archivo se pisan, porque
+        cada una mantiene su propia copia en memoria. En producción esto se resuelve con un
+        \emph{outbox} transaccional en una base de datos, donde la escritura del aviso y la del
+        evento de negocio van en la misma transacción.
+  \item \textbf{No es exactly-once.} La garantía es \emph{at-least-once}: el cliente puede recibir
+        dos avisos si el proceso se cae entre la confirmación del canal y la escritura del estado.
+        Para evitarlo harían falta claves de idempotencia del lado del proveedor.
+  \item \textbf{El outbox no sustituye al proveedor.} Si la dirección de correo ya no existe, el
+        aviso se reintenta, agota los intentos y queda en \emph{dead letter}: la persistencia
+        garantiza que la \emph{notificación} no se pierde, no que el \emph{cliente} la reciba.
+\end{itemize}
 
 \subsubsection{Demostración}
 
-La simulación del inciso~c se ejecuta con el repositorio persistente. Se simula una caída forzada
-durante el envío:
+La demostración usa el código real (\texttt{dotnet run --project Bolsa.Notificaciones --
+restriccion}):
 
-\begin{lstlisting}[language={}, numbers=none, basicstyle=\ttfamily\scriptsize, columns=fullflexible, keepspaces=true]
---- 4. Restricción: reinicio con pendientes ---
-[REINICIO] Proceso detenido con 3 notificaciones Pendientes en outbox
-[RECUPERACIÓN] 3 notificaciones reencoladas con intentos [1,2,1]
-[PUSH → dispositivo-0012] AAPL 151.00 → 155.00
-[EMAIL → cliente0007@correo.cu] AAPL 151.00 → 155.00
-  -> 3/3 entregadas tras reinicio, sin pérdida. Dead letter: 0
+\begin{lstlisting}[language={}, numbers=none, basicstyle=\ttfamily\scriptsize, columns=fullflexible, keepspaces=true, breaklines=true]
+  1) Entrega normal: la alerta persiste el aviso y el canal lo confirma.
+[EMAIL → cliente0001@correo.cu] AAPL subió por encima de su umbral 151.00: 150.00 → 155.00
+  → Outbox: cliente0001@correo.cu → Entregada (intentos: 0)
+
+  2) Canal caído: se reintenta con backoff y, al agotar los intentos, queda en dead letter.
+[FALLO DespachadorAsincrono] intento 1/2 del aviso de +53 50000009 (InvalidOperationException: ...)
+[FALLO DespachadorAsincrono] intento 2/2 del aviso de +53 50000009 (InvalidOperationException: ...)
+  → Outbox: +53 50000009 → FalloDefinitivo (intentos: 2)
+     último error: El proveedor rechazó el aviso de +53 50000009
+
+  3) El proceso se cae con el aviso ya persistido y sin enviar.
+  → Outbox antes de la caída: cliente0002@correo.cu → Pendiente (intentos: 0)
+  [CAÍDA] el proceso se detiene.
+
+  --- Reinicio: otro proceso abre el mismo archivo ---
+  Pendientes leídos del disco: 1
+  Avisos recuperados por el despachador: 1
+[EMAIL → cliente0002@correo.cu] AAPL subió por encima de su umbral 151.00: 150.00 → 155.00
+  → Outbox: cliente0002@correo.cu → Entregada (intentos: 0)
+
+  4) Idempotencia: el mismo aviso encolado dos veces deja una sola fila en el outbox.
+[EMAIL → cliente0003@correo.cu] AAPL 151.00 → 155.00
+[EMAIL → cliente0003@correo.cu] AAPL 151.00 → 155.00
+  → Filas del outbox: 3 antes, 4 después.
+     Filas con ese mismo Id: 1 (el reenvío no duplica el registro).
+
+  --- Resumen del outbox ---
+     Entregadas: 3   Pendientes: 0   Fallo definitivo: 1
 \end{lstlisting}
 
-\texttt{dotnet test} mantiene las 20 pruebas del inciso~c y añade 3 pruebas de persistencia:
-\begin{itemize}
-  \item \texttt{NotificacionPersistidaAntesDeEnviar\_NoSePierdeConReinicio}
-  \item \texttt{ReintentosPersistentes\_SiguenContandoTrasCaida}
-  \item \texttt{DuplicadoPorReenvio\_EsIdempotente}
-\end{itemize}
+La escena~3 es la importante: el aviso se entrega \emph{después} del reinicio, porque estaba en el
+disco antes de que el proceso muriera. Y la escena~4 muestra el otro lado de la moneda: el cliente
+puede recibir el aviso dos veces, pero el outbox guarda una sola fila.
 
-Todas pasan.
+\subsubsection{Pruebas}
 
+\texttt{dotnet test} ejecuta \textbf{35 pruebas, todas correctas}; 7 son de esta restricción:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{7.2cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Prueba} & \textbf{Qué comprueba} \\
+\midrule
+\texttt{LaNotificacionQuedaPersistida\-AntesDeEnviar} & Con el canal bloqueado dentro del envío, la fila del outbox está \texttt{Pendiente}; cuando el canal confirma, pasa a \texttt{Entregada}. \\
+\addlinespace
+\texttt{ElPendienteSobreviveAlReinicio} & Otro proceso abre el mismo archivo y encuentra el aviso pendiente, con su mensaje, su contacto y su contador de intentos. \\
+\addlinespace
+\texttt{LaNotificacionRecuperadaSeEntrega} & \texttt{RecuperarPendientes()} reencola el aviso, el canal lo recibe y la fila queda \texttt{Entregada}. \\
+\addlinespace
+\texttt{ElFalloDefinitivoQuedaPersistido} & Canal siempre caído: la fila queda \texttt{FalloDefinitivo} con los 2 intentos y el último error. \\
+\addlinespace
+\texttt{ElContadorDeIntentosSeConserva\-EnElDisco} & Canal que falla una vez y se recupera: la fila queda \texttt{Entregada} con \texttt{intentos = 1}. \\
+\addlinespace
+\texttt{ElReenvioNoDuplicaLaFilaDelOutbox} & Registrar y guardar el mismo aviso varias veces deja una sola fila. \\
+\addlinespace
+\texttt{UnOutboxDanadoNoSeDescarta\-EnSilencio} & Un archivo corrupto hace fallar la carga en vez de vaciar el outbox en silencio. \\
+\bottomrule
+\end{tabularx}
+\caption{Las pruebas de la restricción E9-R.}
+\end{table}
+
+Las 28 pruebas de los incisos~b, c y d siguen pasando: el cambio no altera su comportamiento.
+
+\subsubsection{Ficheros nuevos y modificados}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{6.4cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Fichero} & \textbf{Qué es} \\
+\midrule
+\texttt{Entrega/EstadoNotificacion.cs} & \textbf{Nuevo.} Los tres estados durables: \texttt{Pendiente}, \texttt{Entregada}, \texttt{FalloDefinitivo}. \\
+\texttt{Entrega/RegistroOutbox.cs} & \textbf{Nuevo.} La fila del outbox: la notificación serializable más el estado del envío. \\
+\texttt{Entrega/IRepositorioOutbox.cs} & \textbf{Nuevo.} La capacidad opcional del repositorio: registrar pendiente, marcar entregada, reintento y fallo definitivo. \\
+\texttt{Entrega/IFabricaCanales.cs} & \textbf{Nuevo.} Reconstruye el canal de un aviso al recuperarlo del disco. \\
+\texttt{Entrega/RepositorioPersistente.cs} & \textbf{Nuevo.} El outbox en un archivo JSON, con escritura atómica y carga estricta. \\
+\texttt{Entrega/DespachadorAsincrono.cs} & \textbf{Modificado.} Persiste antes de encolar, marca cada desenlace y añade \texttt{RecuperarPendientes()}. \\
+\texttt{Demos/DemoPersistencia.cs} & \textbf{Nuevo.} La demostración de las cuatro escenas. \\
+\texttt{Program.cs} & \textbf{Modificado.} Nuevo modo \texttt{restriccion}. \\
+\texttt{Bolsa.Notificaciones.Tests/} & \textbf{Nuevo.} Las 7 pruebas de la restricción. \\
+\bottomrule
+\end{tabularx}
+\caption{Qué aporta la restricción E9-R al repositorio.}
+\end{table}
