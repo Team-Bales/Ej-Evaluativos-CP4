@@ -45,6 +45,16 @@ public sealed class ProcesadorTransacciones
         }
     }
 
+    /// <summary>
+    /// Aplica una operación a una cuenta o a todas las cuentas de un grupo (el
+    /// cliente no distingue): crea una transacción por cuenta, en el orden del
+    /// recorrido del árbol, y ejecuta cada una con «todo o nada». La política
+    /// del grupo es de mejor esfuerzo: si una cuenta rechaza su transacción, las
+    /// demás siguen, y el reporte dice qué pasó con cada una.
+    /// </summary>
+    public IReadOnlyList<ResultadoTransaccion> EjecutarEnCadaCuenta(ICuenta destino, Func<Cuenta, Transaccion> crear) =>
+        RecolectarCuentas.De(destino).Select(cuenta => Ejecutar(crear(cuenta))).ToList();
+
     /// <summary>Revierte una transacción aplicada en todas sus cuentas (rollback).</summary>
     public void Revertir(Transaccion transaccion) => Deshacer(transaccion, [.. transaccion.Cuentas]);
 
