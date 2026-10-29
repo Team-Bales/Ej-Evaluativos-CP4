@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1490" viewBox="0 0 1200 1490">
+<rect width="1200" height="1490" fill="#ffffff"/>
+<text x="40" y="44" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="22" font-weight="bold" fill="#1f2937">Ejercicio 12 · Diagrama de clases: el patrón Visitor</text>
+<rect x="24" y="70" width="1152" height="1225" rx="14" fill="#f4f7fd" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="44" y="100" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="15" font-weight="bold" fill="#3d5fb0">Patrón Visitor: las cuentas (elementos) y las operaciones (visitantes)</text>
+<text x="44" y="120" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#6b7280">Cada operación es un visitante; cada cuenta lo acepta y llama al Visitar de su propia clase (doble despacho).</text>
+<path d="M370,220 L180.0,220 L180.0,350" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M174.8,339.2 L180.0,350 L185.2,339.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="105.6" y="287.0" width="148.8" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="180.0" y="302.0" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">llama a Aceptar(v)</text>
+<path d="M830,220 L948.5,220 L948.5,350" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M943.3,339.2 L948.5,350 L953.7,339.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="817.1" y="287.0" width="262.8" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="948.5" y="302.0" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">crea Ejecutar, Revertir o Auditar</text>
+<path d="M320,420 L765,420" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M754.2,425.2 L765,420 L754.2,414.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="407.3" y="428" width="270.4" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="542.5" y="443" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">Aceptar(v) llama a v.Visitar(this)</text>
+<path d="M180.0,540 L180.0,461" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M187.7,475.0 L180.0,461 L172.3,475.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M320,615 L440,615" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M320.0,615.0 L331.0,621.0 L342.0,615.0 L331.0,609.0 Z" fill="#1f2937" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M429.2,620.2 L440,615 L429.2,609.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<text x="346" y="607" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">1</text>
+<text x="432" y="607" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#374151">0..*</text>
+<rect x="347.8" y="625" width="80.4" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="388.0" y="640" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">historial</text>
+<path d="M765,630 L690,630" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M700.8,624.8 L690,630 L700.8,635.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="706.3" y="602" width="42.4" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="727.5" y="617" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">crea</text>
+<path d="M765,775 L690,775" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M700.8,769.8 L690,775 L700.8,780.2" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="694.9" y="747" width="65.2" height="20" rx="4" fill="#fff" stroke="#d1d5db"/>
+<text x="727.5" y="762" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-style="italic" fill="#1f2937">deshace</text>
+<path d="M1132,651.0 L1154,651.0" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M1132,796.0 L1154,796.0" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M1132,951.5 L1154,951.5" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M1132,1117.5 L1154,1117.5" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M1154,1117.5 L1154,437.0 L1132,437.0" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M1146.0,429.3 L1132,437.0 L1146.0,444.7 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M180.0,885 L180.0,860" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M490.0,885 L490.0,860" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M180.0,860 L490.0,860" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M180.0,1090 L180.0,1068" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M490.0,1090 L490.0,1068" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M180.0,1068 L490.0,1068" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M335.0,1068 L335.0,860" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M180.0,860 L180.0,806" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M187.7,820.0 L180.0,806 L172.3,820.0 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<g>
+<rect x="373" y="154" width="460" height="135" rx="8" fill="#000" opacity="0.06"/>
+<rect x="370" y="150" width="460" height="135" rx="8" fill="#fff" stroke="#2f8a55" stroke-width="1.6"/>
+<path d="M370,190 V158 Q370,150 378,150 H822 Q830,150 830,158 V190 Z" fill="#d9f1e2" stroke="#2f8a55" stroke-width="1.6"/>
+<text x="600.0" y="176" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">ProcesadorTransacciones</text>
+<line x1="370" y1="202" x2="830" y2="202" stroke="#2f8a55" stroke-width="1.2"/>
+<text x="384" y="227" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Ejecutar(Transaccion): ResultadoTransaccion</text>
+<text x="384" y="248" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Revertir(Transaccion)</text>
+<text x="384" y="269" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Auditar(Transaccion): IReadOnlyList&lt;RegistroAuditoria&gt;</text>
+<rect x="771" y="139" width="51" height="20" rx="10" fill="#2f8a55"/>
+<text x="796.5" y="153.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">Client</text>
+</g>
+<g>
+<rect x="43" y="354" width="280" height="111" rx="8" fill="#000" opacity="0.06"/>
+<rect x="40" y="350" width="280" height="111" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M40,408 V358 Q40,350 48,350 H312 Q320,350 320,358 V408 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="180.0" y="372" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«interface»</text>
+<text x="180.0" y="394" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">ICuenta</text>
+<line x1="40" y1="420" x2="320" y2="420" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="54" y="445" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Aceptar(IVisitanteCuenta)</text>
+<rect x="254" y="339" width="58" height="20" rx="10" fill="#3d5fb0"/>
+<text x="283.0" y="353.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">Element</text>
+</g>
+<g>
+<rect x="768" y="354" width="367" height="174" rx="8" fill="#000" opacity="0.06"/>
+<rect x="765" y="350" width="367" height="174" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M765,408 V358 Q765,350 773,350 H1124 Q1132,350 1132,358 V408 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="948.5" y="372" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«interface»</text>
+<text x="948.5" y="394" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">IVisitanteCuenta</text>
+<line x1="765" y1="420" x2="1132" y2="420" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="779" y="445" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Visitar(CuentaAhorro)</text>
+<text x="779" y="466" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Visitar(CuentaCorriente)</text>
+<text x="779" y="487" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Visitar(CuentaInversion)</text>
+<text x="779" y="508" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Visitar(CuentaEmpresarial)</text>
+<rect x="1066" y="339" width="58" height="20" rx="10" fill="#3d5fb0"/>
+<text x="1095.0" y="353.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">Visitor</text>
+</g>
+<g>
+<rect x="43" y="544" width="280" height="266" rx="8" fill="#000" opacity="0.06"/>
+<rect x="40" y="540" width="280" height="266" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M40,598 V548 Q40,540 48,540 H312 Q320,540 320,548 V598 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="180.0" y="562" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" font-style="italic" fill="#6b7280">«abstract»</text>
+<text x="180.0" y="584" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" font-style="italic" fill="#1f2937">Cuenta</text>
+<line x1="40" y1="702" x2="320" y2="702" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="54" y="623" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Numero: string</text>
+<text x="54" y="644" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Titular: string</text>
+<text x="54" y="665" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Saldo: decimal</text>
+<text x="54" y="686" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">-asientos: List&lt;Asiento&gt;</text>
+<text x="54" y="727" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" font-style="italic" fill="#1f2937">+Aceptar(IVisitanteCuenta)</text>
+<text x="54" y="748" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">~AjustarSaldo(decimal)</text>
+<text x="54" y="769" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">~Registrar(Asiento)</text>
+<text x="54" y="790" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">~AsientoDe(Guid): Asiento?</text>
+</g>
+<g>
+<rect x="443" y="559" width="250" height="269" rx="8" fill="#000" opacity="0.06"/>
+<rect x="440" y="555" width="250" height="269" rx="8" fill="#fff" stroke="#b7862a" stroke-width="1.6"/>
+<path d="M440,595 V563 Q440,555 448,555 H682 Q690,555 690,563 V595 Z" fill="#fcefd4" stroke="#b7862a" stroke-width="1.6"/>
+<text x="565.0" y="581" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Asiento</text>
+<line x1="440" y1="783" x2="690" y2="783" stroke="#b7862a" stroke-width="1.2"/>
+<text x="454" y="620" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Transaccion: Transaccion</text>
+<text x="454" y="641" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Naturaleza: Naturaleza</text>
+<text x="454" y="662" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Monto: decimal</text>
+<text x="454" y="683" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Cargo: decimal</text>
+<text x="454" y="704" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Efecto: decimal</text>
+<text x="454" y="725" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+SaldoResultante: decimal</text>
+<text x="454" y="746" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Revertido: bool</text>
+<text x="454" y="767" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+SaldoTrasRevertir: decimal?</text>
+<text x="454" y="808" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">~MarcarRevertido(decimal)</text>
+</g>
+<g>
+<rect x="768" y="594" width="367" height="122" rx="8" fill="#000" opacity="0.06"/>
+<rect x="765" y="590" width="367" height="122" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M765,630 V598 Q765,590 773,590 H1124 Q1132,590 1132,598 V630 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="948.5" y="616" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">EjecutarTransaccion</text>
+<line x1="765" y1="671" x2="1132" y2="671" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="779" y="655" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Transaccion: Transaccion</text>
+<text x="779" y="696" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Visitar(…) × 4</text>
+<rect x="1010" y="579" width="114" height="20" rx="10" fill="#3d5fb0"/>
+<text x="1067.0" y="593.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteVisitor</text>
+</g>
+<g>
+<rect x="768" y="739" width="367" height="122" rx="8" fill="#000" opacity="0.06"/>
+<rect x="765" y="735" width="367" height="122" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M765,775 V743 Q765,735 773,735 H1124 Q1132,735 1132,743 V775 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="948.5" y="761" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">RevertirTransaccion</text>
+<line x1="765" y1="816" x2="1132" y2="816" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="779" y="800" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Transaccion: Transaccion</text>
+<text x="779" y="841" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Visitar(…) × 4</text>
+<rect x="1010" y="724" width="114" height="20" rx="10" fill="#3d5fb0"/>
+<text x="1067.0" y="738.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteVisitor</text>
+</g>
+<g>
+<rect x="768" y="884" width="367" height="143" rx="8" fill="#000" opacity="0.06"/>
+<rect x="765" y="880" width="367" height="143" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M765,920 V888 Q765,880 773,880 H1124 Q1132,880 1132,888 V920 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="948.5" y="906" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">AuditarTransaccion</text>
+<line x1="765" y1="982" x2="1132" y2="982" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="779" y="945" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Transaccion: Transaccion</text>
+<text x="779" y="966" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Registros: IReadOnlyList&lt;RegistroAuditoria&gt;</text>
+<text x="779" y="1007" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Visitar(…) × 4</text>
+<rect x="1010" y="869" width="114" height="20" rx="10" fill="#3d5fb0"/>
+<text x="1067.0" y="883.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteVisitor</text>
+</g>
+<g>
+<rect x="768" y="1050" width="367" height="143" rx="8" fill="#000" opacity="0.06"/>
+<rect x="765" y="1046" width="367" height="143" rx="8" fill="#fff" stroke="#7c4dbe" stroke-width="1.6" stroke-dasharray="7 4"/>
+<path d="M765,1086 V1054 Q765,1046 773,1046 H1124 Q1132,1046 1132,1054 V1086 Z" fill="#ebe2fa" stroke="#7c4dbe" stroke-width="1.6" stroke-dasharray="7 4"/>
+<text x="948.5" y="1072" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CalcularIntereses</text>
+<line x1="765" y1="1148" x2="1132" y2="1148" stroke="#7c4dbe" stroke-width="1.2"/>
+<text x="779" y="1111" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Intereses: IReadOnlyDictionary&lt;string,decimal&gt;</text>
+<text x="779" y="1132" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Total: decimal</text>
+<text x="779" y="1173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="12" fill="#1f2937">+Visitar(…) × 4</text>
+<rect x="1010" y="1035" width="114" height="20" rx="10" fill="#7c4dbe"/>
+<text x="1067.0" y="1049.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">operación nueva</text>
+</g>
+<g>
+<rect x="43" y="889" width="280" height="164" rx="8" fill="#000" opacity="0.06"/>
+<rect x="40" y="885" width="280" height="164" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M40,925 V893 Q40,885 48,885 H312 Q320,885 320,893 V925 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="180.0" y="911" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CuentaAhorro</text>
+<line x1="40" y1="1008" x2="320" y2="1008" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="54" y="950" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+LimiteRetirosMensuales: int</text>
+<text x="54" y="971" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+RetirosDelMes: int</text>
+<text x="54" y="992" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+MesDeRetiros: DateOnly</text>
+<text x="54" y="1033" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Aceptar(v): v.Visitar(this)</text>
+<rect x="198" y="874" width="114" height="20" rx="10" fill="#3d5fb0"/>
+<text x="255.0" y="888.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteElement</text>
+</g>
+<g>
+<rect x="353" y="889" width="280" height="164" rx="8" fill="#000" opacity="0.06"/>
+<rect x="350" y="885" width="280" height="164" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M350,925 V893 Q350,885 358,885 H622 Q630,885 630,893 V925 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="490.0" y="911" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CuentaCorriente</text>
+<line x1="350" y1="1008" x2="630" y2="1008" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="364" y="950" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+LimiteSobregiro: decimal</text>
+<text x="364" y="971" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+CargoPorSobregiro: decimal</text>
+<text x="364" y="992" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+VecesEnSobregiro: int</text>
+<text x="364" y="1033" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Aceptar(v): v.Visitar(this)</text>
+<rect x="508" y="874" width="114" height="20" rx="10" fill="#3d5fb0"/>
+<text x="565.0" y="888.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteElement</text>
+</g>
+<g>
+<rect x="43" y="1094" width="280" height="185" rx="8" fill="#000" opacity="0.06"/>
+<rect x="40" y="1090" width="280" height="185" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M40,1130 V1098 Q40,1090 48,1090 H312 Q320,1090 320,1098 V1130 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="180.0" y="1116" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CuentaInversion</text>
+<line x1="40" y1="1234" x2="320" y2="1234" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="54" y="1155" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+FechaVencimiento: DateTime</text>
+<text x="54" y="1176" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+TasaPenalizacion: decimal</text>
+<text x="54" y="1197" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+DepositoMinimo: decimal</text>
+<text x="54" y="1218" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+PenalizacionesCobradas: decimal</text>
+<text x="54" y="1259" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Aceptar(v): v.Visitar(this)</text>
+<rect x="198" y="1079" width="114" height="20" rx="10" fill="#3d5fb0"/>
+<text x="255.0" y="1093.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteElement</text>
+</g>
+<g>
+<rect x="353" y="1094" width="280" height="185" rx="8" fill="#000" opacity="0.06"/>
+<rect x="350" y="1090" width="280" height="185" rx="8" fill="#fff" stroke="#3d5fb0" stroke-width="1.6"/>
+<path d="M350,1130 V1098 Q350,1090 358,1090 H622 Q630,1090 630,1098 V1130 Z" fill="#dbe5fb" stroke="#3d5fb0" stroke-width="1.6"/>
+<text x="490.0" y="1116" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">CuentaEmpresarial</text>
+<line x1="350" y1="1234" x2="630" y2="1234" stroke="#3d5fb0" stroke-width="1.2"/>
+<text x="364" y="1155" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+TasaComision: decimal</text>
+<text x="364" y="1176" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+UmbralAutorizacion: decimal</text>
+<text x="364" y="1197" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+ComisionesCobradas: decimal</text>
+<text x="364" y="1218" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+OperacionesAutorizadas: int</text>
+<text x="364" y="1259" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="13" fill="#1f2937">+Aceptar(v): v.Visitar(this)</text>
+<rect x="508" y="1079" width="114" height="20" rx="10" fill="#3d5fb0"/>
+<text x="565.0" y="1093.5" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" font-weight="bold" fill="#fff">ConcreteElement</text>
+</g>
+<rect x="24" y="1320" width="1152" height="150" rx="14" fill="#fafafa" stroke="#d1d5db"/>
+<text x="44" y="1345" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">Leyenda</text>
+<path d="M44,1375 L104,1375" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M90.0,1382.7 L104,1375 L90.0,1367.3 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<text x="116" y="1380" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">implementa la interfaz</text>
+<path d="M604,1375 L664,1375" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M650.0,1382.7 L664,1375 L650.0,1367.3 Z" fill="#fff" stroke="#1f2937" stroke-width="1.5"/>
+<text x="676" y="1380" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">hereda de la clase (generalización)</text>
+<path d="M44,1405 L104,1405" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M93.2,1410.2 L104,1405 L93.2,1399.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<text x="116" y="1410" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">asociación (lo tiene como atributo)</text>
+<path d="M604,1405 L664,1405" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M653.2,1410.2 L664,1405 L653.2,1399.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<text x="676" y="1410" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">dependencia (lo crea, lo usa o lo llama)</text>
+<path d="M44,1435 L104,1435" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M44.0,1435.0 L55.0,1441.0 L66.0,1435.0 L55.0,1429.0 Z" fill="#1f2937" stroke="#1f2937" stroke-width="1.5"/>
+<path d="M93.2,1440.2 L104,1435 L93.2,1429.8" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+<text x="116" y="1440" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">composición (es dueño de la colección)</text>
+<text x="44" y="1460" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">Colores: azul = roles de Visitor · verde = cliente · ámbar = registro que deja cada transacción · morado = operación agregada para demostrar la extensibilidad.</text>
+<text x="604" y="1440" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">Contadores (+): se leen desde fuera; solo los visitantes los cambian.</text>
+</svg>
