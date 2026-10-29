@@ -211,6 +211,14 @@ lógica: la condición ya no la evalúa el observador, la resuelve el índice. E
 cambio, y solo compensa cuando $n$ es grande: con 1\,000 clientes la mejora es
 2,8$\times$; con 1\,000\,000, 731$\times$.
 
+Como el índice agrupa a todos los clientes de una acción bajo un único observador,
+\texttt{Avisar} recorre el tramo de una sentada: si \texttt{Encolar} lanzara a mitad del
+tramo, los clientes restantes se quedarían sin aviso. Ese es el riesgo de concentrar el
+envío en un solo observador. El \texttt{Encolar} actual de
+\texttt{DespachadorAsincrono} no lanza (escribe con \texttt{TryWrite} y, si la cola está
+llena, rechaza y registra), así que el riesgo no se materializa hoy, pero es una
+consecuencia estructural de agrupar bajo un único observador.
+
 \paragraph{El límite inferior.}
 \textbf{Ninguna estructura de datos puede bajar de $\Omega(k)$}, porque hay que crear y
 entregar $k$ notificaciones. $O(\log n + k)$ es óptimo en ese sentido: $\log n$ es el costo
@@ -244,6 +252,14 @@ Construir desde cero & 2\,652\,ms para 1M & 1\,108\,ms para 1M \\
 \end{tabular}
 \caption{La contrapartida honesta de la propuesta.}
 \end{table}
+
+El prototipo indexado solo se construye de una vez
+(\texttt{GestorUmbralesIndexado.Construir}): no ofrece \texttt{Suscribir} ni
+\texttt{Desuscribir} dinámicas sobre el índice ya construido. Esa es precisamente
+la contrapartida que cuantifica la tabla anterior ---mantener el orden cuesta
+$O(n)$ por alta o baja en el array ordenado, frente a $O(\log n)$ del
+\texttt{ImmutableList} ingenuo---; si las suscripciones cambian a menudo, conviene
+la estructura ordenada con inserción logarítmica que se comenta a continuación.
 
 Si las altas y bajas fueran tan frecuentes como los ticks, el array ordenado sería mala idea.
 La solución es una \textbf{estructura ordenada con inserción logarítmica}

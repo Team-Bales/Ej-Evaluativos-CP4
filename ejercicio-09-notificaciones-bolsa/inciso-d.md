@@ -142,6 +142,8 @@ accion.Suscribir(GestorUmbralesIndexado.Construir(suscripciones, despachador));
 
 Lo que **sí** se pierde es que cada suscripción deje de ser un objeto con su propia lógica: la condición ya no la evalúa el observador, la resuelve el índice. Es el precio del cambio, y solo compensa cuando n es grande. Con 1 000 clientes la mejora es 2,8×; con 1 000 000, 731×.
 
+Como el índice agrupa a todos los clientes de una acción bajo un único observador, `Avisar` recorre el tramo de una sentada: si `Encolar` lanzara a mitad del tramo, los clientes restantes se quedarían sin aviso. Ese es el riesgo de concentrar el envío en un solo observador. El `Encolar` actual de `DespachadorAsincrono` no lanza (escribe con `TryWrite` y, si la cola está llena, rechaza y registra), así que el riesgo no se materializa hoy, pero es una consecuencia estructural de agrupar bajo un único observador.
+
 ### Lo que no baja de ahí: el límite inferior
 
 **Ninguna estructura de datos puede bajar de Ω(k)**, porque hay que crear y entregar k notificaciones. O(log n + k) es óptimo en ese sentido: el término `log n` es el costo de *encontrar* a quién avisar y el término `k` es el trabajo que el problema exige. El escenario B es lo que se ve cuando se alcanza ese límite.
@@ -165,6 +167,14 @@ Es la contrapartida honesta de la propuesta:
 | Desuscribir | O(log n) | **O(n)** |
 | Notificar | Θ(n) | **O(log n + k)** |
 | Construir desde cero | 2 652 ms para 1M | **1 108 ms** para 1M |
+
+El prototipo indexado solo se construye de una vez
+(`GestorUmbralesIndexado.Construir`): no ofrece `Suscribir` ni `Desuscribir`
+dinámicas sobre el índice ya construido. Esa es precisamente la contrapartida
+que cuantifica la tabla anterior —mantener el orden cuesta O(n) por alta o baja
+en el array ordenado, frente a O(log n) del `ImmutableList` ingenuo—; si las
+suscripciones cambian a menudo, conviene la estructura ordenada con inserción
+logarítmica que se comenta a continuación.
 
 Si las altas y bajas fueran tan frecuentes como los ticks, el array ordenado sería mala idea. La solución es una **estructura ordenada con inserción logarítmica** (`SortedSet`, un árbol balanceado o una *skip list*): mantiene O(log n) para suscribir y desuscribir, y el recorrido del tramo sigue siendo O(log n + k). Aquí se usa un array porque en este problema los precios cambian muchísimo más a menudo que las suscripciones, y el array da la mejor constante en el recorrido.
 
