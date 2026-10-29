@@ -156,6 +156,41 @@ foreach (Asiento asiento in corriente.Historial<Transferencia>())
     Console.WriteLine($"  {asiento.Transaccion.Descripcion}");
 }
 
+// --------------------------------------------------------------------------
+// 7. Restricción: transacciones en paralelo. ProcesadorTransacciones toma el
+// candado de cada cuenta en orden fijo: las de cuentas distintas corren a la
+// vez, las de una misma cuenta de una en una, y las cruzadas no se bloquean.
+// La salida no depende del orden en que corran los hilos.
+// --------------------------------------------------------------------------
+Titulo("7. Restricción: transacciones en paralelo");
+CuentaCorriente cuentaA = new("COR-101", "Ana Pérez", 10_000.00m);
+CuentaCorriente cuentaB = new("COR-102", "Luis Gómez", 10_000.00m);
+
+List<Transaccion> sobreLaMismaCuenta = Enumerable.Range(0, 1_000)
+    .Select(i => i % 2 == 0
+        ? (Transaccion)new Deposito(cuentaA, 10.00m, "app.movil", hoy)
+        : new Retiro(cuentaA, 10.00m, "app.movil", hoy))
+    .ToList();
+IReadOnlyList<ResultadoTransaccion> resultadosMismaCuenta = procesador.EjecutarEnParalelo(sobreLaMismaCuenta);
+Console.WriteLine($"  1000 depósitos y retiros de 10.00 a la vez sobre {cuentaA.Numero}: " +
+                  $"{resultadosMismaCuenta.Count(r => r.FueAplicada)} aplicados, saldo {F(cuentaA.Saldo)} " +
+                  $"(esperado 10000.00), {cuentaA.Historial().Count()} asientos");
+
+List<Transaccion> cruzadas = Enumerable.Range(0, 1_000)
+    .Select(i => (Transaccion)(i % 2 == 0
+        ? new Transferencia(cuentaA, cuentaB, 7.00m, "banca.web", hoy)
+        : new Transferencia(cuentaB, cuentaA, 7.00m, "banca.web", hoy)))
+    .ToList();
+IReadOnlyList<ResultadoTransaccion> resultadosCruzadas = procesador.EjecutarEnParalelo(cruzadas);
+Console.WriteLine($"  1000 transferencias cruzadas entre {cuentaA.Numero} y {cuentaB.Numero} a la vez: " +
+                  $"{resultadosCruzadas.Count(r => r.FueAplicada)} aplicadas, sin interbloqueo; " +
+                  $"suma de las dos cuentas {F(cuentaA.Saldo + cuentaB.Saldo)} (se conserva)");
+
+IReadOnlyList<RegistroAuditoria> auditoriaEnParalelo = procesador.AuditarEnParalelo(cruzadas);
+Console.WriteLine($"  Auditoría en paralelo de esas transferencias, un AuditarTransaccion por tarea: " +
+                  $"{auditoriaEnParalelo.Count} registros (2 por transferencia), " +
+                  $"{auditoriaEnParalelo.Count(r => r.Conforme)} conformes");
+
 void ImprimirResumen(GrupoCuentas raiz)
 {
     ResumirPorGrupo resumir = new();

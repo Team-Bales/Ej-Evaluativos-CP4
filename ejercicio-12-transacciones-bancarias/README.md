@@ -13,13 +13,14 @@ Un banco necesita procesar diferentes tipos de transacciones (depósito, retiro,
 
 ## Restricción
 
-- [ ] Las operaciones deben poder ejecutarse en paralelo sobre diferentes cuentas (considera concurrencia y estado mutable del Visitor). Además, el sistema debe garantizar que las transacciones sobre una misma cuenta sean atómicas y consistentes (¿cómo lo resuelves con el patrón elegido?).
+- [x] ([respuesta](restriccion.md)) Las operaciones deben poder ejecutarse en paralelo sobre diferentes cuentas (considera concurrencia y estado mutable del Visitor). Además, el sistema debe garantizar que las transacciones sobre una misma cuenta sean atómicas y consistentes (¿cómo lo resuelves con el patrón elegido?).
 
 ## Solución
 
 - a) [Identificación del patrón](inciso-a.md): Visitor. Diagramas de clases en [`diagramas/`](diagramas/), con una [guía para leerlos](diagramas/como-leer-los-diagramas.md).
 - b) [Implementación](inciso-b.md): código en [`codigo/`](codigo/)
 - c) [Integración con Composite e Iterator](inciso-c.md): grupos de cuentas anidados, historial de cada cuenta y operaciones sobre grupos (secciones 5 y 6 de la simulación)
+- Restricción: [ejecución en paralelo y atomicidad por cuenta](restriccion.md): un candado por cuenta en orden fijo y una instancia de visitante por tarea (sección 7 de la simulación)
 
 ### Cómo ejecutar el código
 

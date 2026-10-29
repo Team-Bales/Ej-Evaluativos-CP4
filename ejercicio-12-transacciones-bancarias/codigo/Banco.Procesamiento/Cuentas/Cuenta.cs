@@ -21,8 +21,19 @@ public abstract class Cuenta : ICuenta
         Saldo = saldoInicial;
     }
 
-    /// <summary>Número de cuenta (p. ej. AHO-001); la identifica.</summary>
+    /// <summary>
+    /// Número de cuenta (p. ej. AHO-001); la identifica y es único. También fija
+    /// el orden en que se toman los candados de varias cuentas.
+    /// </summary>
     public string Numero { get; }
+
+    /// <summary>
+    /// Candado propio de la cuenta (restricción): ProcesadorTransacciones lo toma
+    /// para que dos transacciones sobre la misma cuenta no se mezclen. Es un
+    /// objeto privado y no la propia cuenta, para que nadie de fuera pueda
+    /// bloquearlo por accidente.
+    /// </summary>
+    internal object Candado { get; } = new();
 
     /// <summary>Nombre del titular.</summary>
     public string Titular { get; }
