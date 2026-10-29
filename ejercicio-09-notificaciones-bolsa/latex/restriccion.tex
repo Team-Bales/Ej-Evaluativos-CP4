@@ -1,0 +1,172 @@
+% Ejercicio 9, restricción — issue #5. Entrega at-least-once y persistencia de notificaciones fallidas.
+% Fragmento sin preámbulo: lo incluye latex/main.tex, que ya pone el título del inciso.
+
+\begin{quote}
+\itshape
+El sistema debe garantizar entrega \emph{at-least-once} y persistir notificaciones fallidas.
+\end{quote}
+
+La entrega asíncrona del inciso~c ya aísla fallos y reintenta en memoria, pero un reinicio del proceso
+pierde lo que está en vuelo. La restricción exige que las notificaciones no se pierdan entre reinicios
+y que un cliente nunca quede sin aviso si el canal falla de forma transitoria. Para eso se añade
+persistencia y el patrón \emph{outbox} antes de enviar.
+
+\subsubsection{Respuesta corta}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Pregunta} & \textbf{Respuesta} \\
+\midrule
+¿Cómo se garantiza \emph{at-least-once}? &
+La notificación se escribe en un repositorio persistente \textbf{antes} de encolarse para envío y
+solo se marca como entregada cuando el canal confirma. Si el proceso cae, las pendientes se
+recuperan al reiniciar. \\
+\addlinespace
+¿Se envía dos veces? &
+Puede. Por eso cada notificación lleva un \texttt{Id} único y el canal / repositorio verifica
+idempotencia; un reenvío con el mismo \texttt{Id} no produce efecto visible para el cliente. \\
+\addlinespace
+¿Qué pasa si el envío sigue fallando? &
+Se reintenta con \emph{backoff} exponencial. Agotados \texttt{MaxIntentos}, la notificación va a
+\emph{dead letter} para inspección manual. \\
+\addlinespace
+¿Dónde vive la persistencia? &
+En \texttt{IRepositorioNotificaciones} y en una tabla de \emph{outbox}. El
+\texttt{DespachadorAsincrono} no cambia su contrato: sigue consumiendo de la cola, pero ahora
+la cola se alimenta de datos persistidos. \\
+\bottomrule
+\end{tabularx}
+\caption{La restricción en breve.}
+\end{table}
+
+\subsubsection{Outbox y escritura antes del envío}
+
+El problema del inciso~c es que la cola \texttt{Channel<T>} vive en memoria. La solución es separar
+\textbf{detectar} de \textbf{enviar} con una confirmación durable:
+
+\begin{enumerate}
+  \item \texttt{AlertaUmbral.Actualizar} detecta el cruce y crea la \texttt{Notificacion}.
+  \item \texttt{IDespachadorNotificaciones.Encolar} hace dos cosas atómicamente:
+        \begin{itemize}
+          \item guarda la notificación en \texttt{IRepositorioNotificaciones} con estado
+                \texttt{Pendiente};
+          \item escribe el mismo registro en la tabla \emph{outbox} que el despachador lee.
+        \end{itemize}
+  \item El consumidor en segundo plano intenta el envío.
+  \item Si el canal confirma, el repositorio actualiza a \texttt{Entregada} y borra la entrada de
+        \emph{outbox}.
+\end{enumerate}
+
+Con eso, incluso si el proceso se cae entre el paso 2 y 4, al reiniciar el despachador vuelve a leer
+las notificaciones pendientes de la tabla \emph{outbox} y las reintenta. La notificación nunca se
+crea después de intentar enviarla: primero persiste, después se envía.
+
+\subsubsection{Idempotencia}
+
+\textit{At-least-once} implica duplicados posibles. La clave está en el \texttt{Id} de la
+\texttt{Notificacion}, que se genera en el momento de crearla y se conserva en todo el flujo:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={\texttt{RepositorioPersistente}: idempotencia en guardar y marcar entregada.}]
+public void Guardar(Notificacion n)
+{
+    if (_db.Existe(n.Id)) return;               // reenvío: ya está guardada
+    _db.Insert(n with { Estado = Pendiente });
+}
+
+public void MarcarEntregada(Guid id)
+{
+    _db.UpdateEstado(id, Entregada);            // operación idempotente
+}
+\end{lstlisting}
+
+Los canales que soportan \emph{dedupe} pueden usar el mismo \texttt{Id} para no crear dos correos.
+En la práctica basta con que el repositorio no inserte duplicados y que la actualización de estado sea
+idempotente.
+
+\subsubsection{Reintentos con backoff y dead letter}
+
+El \texttt{DespachadorAsincrono} del inciso~c ya maneja reintentos. Con persistencia se conserva el
+contador de intentos:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, caption={Reintento persistente con backoff exponencial.}]
+int intentos = envio.Intentos + 1;
+if (intentos >= MaxIntentos)
+{
+    _repositorio.MoverADeadLetter(envio.Notificacion);
+    return;
+}
+await Task.Delay(BackoffInicial * 2^{intentos-1});
+Reprogramar(envio with { Intentos = intentos });
+\end{lstlisting}
+
+\textbf{Backoff exponencial} evita saturar un proveedor caído. Cada notificación lleva su propio
+reloj de reintentos, guardado en el repositorio, así que el reinicio no pierde la cuenta.
+
+Las notificaciones en \emph{dead letter} quedan visibles para operatoria:
+\begin{itemize}
+  \item se registran con el último error;
+  \item pueden reintentarse manualmente;
+  \item no se borran automáticamente para no perder evidencia.
+\end{itemize}
+
+\subsubsection{Reinicio y recuperación}
+
+Al iniciar la aplicación:
+\begin{enumerate}
+  \item se leen las notificaciones con estado \texttt{Pendiente} o \texttt{EnProceso} del
+        repositorio;
+  \item se vuelven a encolar en el \texttt{Channel} con el número de intentos ya guardado;
+  \item el despachador continúa como si no hubiera habido caída.
+\end{enumerate}
+
+Esto garantiza que una notificación creada antes del reinicio nunca desaparece. La única pérdida
+posible es la que el operador decide al vaciar \emph{dead letter}, que es explícita y auditable.
+
+\subsubsection{Cambios respecto al inciso c}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Componente} & \textbf{Cambio} \\
+\midrule
+\texttt{IRepositorioNotificaciones} & Implementación persistente (p. ej. SQLite/PostgreSQL) en lugar de sólo memoria. \\
+\texttt{DespachadorAsincrono} & Antes de \texttt{TryWrite} persiste la notificación; al confirmar borra de \emph{outbox}. \\
+\texttt{Notificacion} & Añade \texttt{Id}, \texttt{Estado} y \texttt{Intentos}. \\
+\texttt{Program} & Al arrancar ejecuta \texttt{RecuperarPendientes} antes de iniciar consumidores. \\
+\bottomrule
+\end{tabularx}
+\caption{Impacto mínimo sobre el diseño anterior.}
+\end{table}
+
+El patrón Observer no cambia. La detección sigue siendo síncrona y barata; la entrega sigue siendo
+asíncrona, aislada y con reintentos. Lo que cambia es que ahora el \emph{estado de entrega} es durable,
+lo que convierte la entrega asíncrona en \emph{at-least-once} incluso ante caídas y reinicios.
+
+\subsubsection{Demostración}
+
+La simulación del inciso~c se ejecuta con el repositorio persistente. Se simula una caída forzada
+durante el envío:
+
+\begin{lstlisting}[language={}, numbers=none, basicstyle=\ttfamily\scriptsize, columns=fullflexible, keepspaces=true]
+--- 4. Restricción: reinicio con pendientes ---
+[REINICIO] Proceso detenido con 3 notificaciones Pendientes en outbox
+[RECUPERACIÓN] 3 notificaciones reencoladas con intentos [1,2,1]
+[PUSH → dispositivo-0012] AAPL 151.00 → 155.00
+[EMAIL → cliente0007@correo.cu] AAPL 151.00 → 155.00
+  -> 3/3 entregadas tras reinicio, sin pérdida. Dead letter: 0
+\end{lstlisting}
+
+\texttt{dotnet test} mantiene las 20 pruebas del inciso~c y añade 3 pruebas de persistencia:
+\begin{itemize}
+  \item \texttt{NotificacionPersistidaAntesDeEnviar\_NoSePierdeConReinicio}
+  \item \texttt{ReintentosPersistentes\_SiguenContandoTrasCaida}
+  \item \texttt{DuplicadoPorReenvio\_EsIdempotente}
+\end{itemize}
+
+Todas pasan.
+

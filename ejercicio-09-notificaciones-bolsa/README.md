@@ -13,7 +13,7 @@ Una plataforma de trading necesita notificar automáticamente a miles de cliente
 
 ## Restricción
 
-- [ ] El sistema debe garantizar entrega "at-least-once" y persistir notificaciones fallidas.
+- [x] El sistema debe garantizar entrega "at-least-once" y persistir notificaciones fallidas.
 
 ## Solución
 
