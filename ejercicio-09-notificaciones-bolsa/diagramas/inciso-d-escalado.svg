@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="740" viewBox="0 0 1200 740">
+<rect width="1200" height="740" fill="#ffffff"/>
+
+<text x="40" y="42" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="21" font-weight="bold" fill="#1f2937">Ejercicio 9 · inciso d · Coste de un cambio de precio según el número de clientes</text>
+<text x="40" y="66" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" fill="#6b7280">Los dos ejes en escala logarítmica. Mediana de 11 ticks en un Intel Core i5-7300U con .NET 10; k son los clientes que de verdad hay que avisar.</text>
+
+<!-- === Rejilla y ejes === -->
+<line x1="150" y1="600" x2="1030" y2="600" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="150" y1="502" x2="1030" y2="502" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="150" y1="404" x2="1030" y2="404" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="150" y1="306" x2="1030" y2="306" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="150" y1="208" x2="1030" y2="208" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="150" y1="110" x2="1030" y2="110" stroke="#e5e7eb" stroke-width="1"/>
+
+<line x1="443.3" y1="110" x2="443.3" y2="600" stroke="#f1f3f5" stroke-width="1"/>
+<line x1="736.7" y1="110" x2="736.7" y2="600" stroke="#f1f3f5" stroke-width="1"/>
+<line x1="1030" y1="110" x2="1030" y2="600" stroke="#f1f3f5" stroke-width="1"/>
+
+<line x1="150" y1="110" x2="150" y2="600" stroke="#9ca3af" stroke-width="1.2"/>
+<line x1="150" y1="600" x2="1030" y2="600" stroke="#9ca3af" stroke-width="1.2"/>
+
+<text x="138" y="604" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">0,01 ms</text>
+<text x="138" y="506" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">0,1 ms</text>
+<text x="138" y="408" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">1 ms</text>
+<text x="138" y="310" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">10 ms</text>
+<text x="138" y="212" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">100 ms</text>
+<text x="138" y="114" text-anchor="end" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12" fill="#6b7280">1000 ms</text>
+
+<text x="150" y="626" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">1000</text>
+<text x="443.3" y="626" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">10 000</text>
+<text x="736.7" y="626" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">100 000</text>
+<text x="1030" y="626" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">1 000 000</text>
+
+<text x="590" y="656" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" fill="#6b7280">clientes suscritos a la acción (n)</text>
+<text x="34" y="355" text-anchor="middle" transform="rotate(-90 34 355)" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" fill="#6b7280">tiempo de un cambio de precio</text>
+
+<!-- === Anotación === -->
+<text x="178" y="152" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="13" font-weight="bold" fill="#1f2937">En estos ejes, una recta de pendiente 1 crece como O(n); una recta horizontal es coste constante.</text>
+<text x="178" y="174" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#6b7280">Con n = 1 000 000 y k = 50 (escenario A): 112,3 ms recorriendo la lista frente a 0,15 ms con el índice.</text>
+<text x="178" y="192" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#6b7280">En el escenario B, k crece con n, así que las dos curvas vuelven a ser rectas de pendiente 1.</text>
+
+<!-- === Series === -->
+<!-- ingenuo (azul) -->
+<path d="M150,436.2 L443.3,376.1 L736.7,301.7 L1030,203.1" fill="none" stroke="#3d5fb0" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M150,504.2 L443.3,394.7 L736.7,290.5 L1030,193.3" fill="none" stroke="#3d5fb0" stroke-width="2.4" stroke-dasharray="8 5" stroke-linejoin="round" stroke-linecap="round"/>
+<!-- indexado (ámbar) -->
+<path d="M150,479.9 L443.3,467.1 L736.7,459.7 L1030,483.8" fill="none" stroke="#b7862a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M150,558.8 L443.3,479.0 L736.7,373.4 L1030,275.4" fill="none" stroke="#b7862a" stroke-width="2.4" stroke-dasharray="8 5" stroke-linejoin="round" stroke-linecap="round"/>
+
+<g fill="#3d5fb0" stroke="#ffffff" stroke-width="2">
+<circle cx="150" cy="436.2" r="4.5"/><circle cx="443.3" cy="376.1" r="4.5"/><circle cx="736.7" cy="301.7" r="4.5"/><circle cx="1030" cy="203.1" r="4.5"/>
+<circle cx="150" cy="504.2" r="4.5"/><circle cx="443.3" cy="394.7" r="4.5"/><circle cx="736.7" cy="290.5" r="4.5"/><circle cx="1030" cy="193.3" r="4.5"/>
+</g>
+<g fill="#b7862a" stroke="#ffffff" stroke-width="2">
+<circle cx="150" cy="479.9" r="4.5"/><circle cx="443.3" cy="467.1" r="4.5"/><circle cx="736.7" cy="459.7" r="4.5"/><circle cx="1030" cy="483.8" r="4.5"/>
+<circle cx="150" cy="558.8" r="4.5"/><circle cx="443.3" cy="479.0" r="4.5"/><circle cx="736.7" cy="373.4" r="4.5"/><circle cx="1030" cy="275.4" r="4.5"/>
+</g>
+
+<!-- === Etiquetas directas === -->
+<line x1="1034" y1="193.3" x2="1040" y2="186" stroke="#9ca3af" stroke-width="1"/>
+<line x1="1044" y1="186" x2="1060" y2="186" stroke="#3d5fb0" stroke-width="2.4" stroke-dasharray="8 5"/>
+<text x="1066" y="190" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">B · ingenuo</text>
+<text x="1066" y="206" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" fill="#6b7280">141,2 ms</text>
+
+<line x1="1034" y1="203.1" x2="1040" y2="226" stroke="#9ca3af" stroke-width="1"/>
+<line x1="1044" y1="226" x2="1060" y2="226" stroke="#3d5fb0" stroke-width="2.4"/>
+<text x="1066" y="230" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">A · ingenuo</text>
+<text x="1066" y="246" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" fill="#6b7280">112,3 ms</text>
+
+<line x1="1034" y1="275.4" x2="1040" y2="286" stroke="#9ca3af" stroke-width="1"/>
+<line x1="1044" y1="286" x2="1060" y2="286" stroke="#b7862a" stroke-width="2.4" stroke-dasharray="8 5"/>
+<text x="1066" y="290" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">B · indexado</text>
+<text x="1066" y="306" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" fill="#6b7280">20,5 ms</text>
+
+<line x1="1034" y1="483.8" x2="1040" y2="484" stroke="#9ca3af" stroke-width="1"/>
+<line x1="1044" y1="484" x2="1060" y2="484" stroke="#b7862a" stroke-width="2.4"/>
+<text x="1066" y="488" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">A · indexado</text>
+<text x="1066" y="504" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" fill="#6b7280">0,15 ms</text>
+
+<!-- === Leyenda === -->
+<line x1="152" y1="696" x2="176" y2="696" stroke="#3d5fb0" stroke-width="2.4"/>
+<text x="184" y="700" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">ingenuo: recorrer las n alertas · O(n)</text>
+
+<line x1="440" y1="696" x2="464" y2="696" stroke="#b7862a" stroke-width="2.4"/>
+<text x="472" y="700" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">indexado: búsqueda binaria · O(log n + k)</text>
+
+<line x1="760" y1="696" x2="784" y2="696" stroke="#6b7280" stroke-width="2.4"/>
+<text x="792" y="700" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">A: k constante</text>
+
+<line x1="920" y1="696" x2="944" y2="696" stroke="#6b7280" stroke-width="2.4" stroke-dasharray="8 5"/>
+<text x="952" y="700" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.5" fill="#1f2937">B: k proporcional a n</text>
+</svg>

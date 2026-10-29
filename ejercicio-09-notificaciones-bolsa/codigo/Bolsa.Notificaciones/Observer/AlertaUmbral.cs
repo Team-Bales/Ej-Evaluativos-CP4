@@ -48,11 +48,21 @@ public sealed class AlertaUmbral : IObservadorPrecio
             return;
         }
 
-        string verbo = Direccion == Direccion.Sube ? "subió por encima de" : "bajó por debajo de";
-        string mensaje = $"{cambio.Simbolo} {verbo} su umbral {Formato(Umbral)}: " +
-                         $"{Formato(cambio.PrecioAnterior)} → {Formato(cambio.PrecioNuevo)}";
+        _despachador.Encolar(new Notificacion(Guid.NewGuid(), Cliente, Mensaje(cambio, Umbral, Direccion)));
+    }
 
-        _despachador.Encolar(new Notificacion(Guid.NewGuid(), Cliente, mensaje));
+    /// <summary>
+    /// Texto del aviso. Está aquí, y no dentro de <see cref="Actualizar"/>,
+    /// porque el índice ordenado del inciso d) genera exactamente el mismo
+    /// mensaje sin pasar por el observador: así las dos versiones son
+    /// comparables.
+    /// </summary>
+    internal static string Mensaje(CambioPrecio cambio, decimal umbral, Direccion direccion)
+    {
+        string verbo = direccion == Direccion.Sube ? "subió por encima de" : "bajó por debajo de";
+
+        return $"{cambio.Simbolo} {verbo} su umbral {Formato(umbral)}: " +
+               $"{Formato(cambio.PrecioAnterior)} → {Formato(cambio.PrecioNuevo)}";
     }
 
     private bool CruzaElUmbral(CambioPrecio cambio) => Direccion switch
