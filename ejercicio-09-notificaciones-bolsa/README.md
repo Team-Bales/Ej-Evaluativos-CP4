@@ -13,7 +13,7 @@ Una plataforma de trading necesita notificar automáticamente a miles de cliente
 
 ## Restricción
 
-- [x] El sistema debe garantizar entrega "at-least-once" y persistir notificaciones fallidas.
+- [x] ([respuesta](restriccion.md)) El sistema debe garantizar entrega "at-least-once" y persistir notificaciones fallidas.
 
 ## Solución
 
@@ -21,6 +21,7 @@ Una plataforma de trading necesita notificar automáticamente a miles de cliente
 - b) [Implementación](inciso-b.md): código en [`codigo/`](codigo/)
 - c) [Análisis](inciso-c.md): aislamiento de fallos y entrega asíncrona
 - d) [Rendimiento](inciso-d.md): benchmark hasta 1M de clientes e índice ordenado de umbrales
+- Restricción: [entrega at-least-once y persistencia](restriccion.md): patrón *outbox* con notificaciones persistidas antes de enviarlas, idempotencia por `Id`, reintentos con backoff, *dead letter* y recuperación al reiniciar
 
 ### Cómo ejecutar el código
 
@@ -30,6 +31,7 @@ Requisito: SDK de .NET 10. Desde [`codigo/`](codigo/):
 dotnet run --project Bolsa.Notificaciones                 # inciso b: la simulación (5 acciones, 1000 clientes)
 dotnet run --project Bolsa.Notificaciones -- asincrono    # inciso c: fallos, reintentos y mediciones
 dotnet run -c Release --project Bolsa.Notificaciones -- rendimiento   # inciso d: benchmark hasta 1M
+dotnet run --project Bolsa.Notificaciones -- restriccion   # restricción E9-R: outbox, reinicio e idempotencia
 dotnet test                                               # las pruebas unitarias (xUnit)
 ```
 

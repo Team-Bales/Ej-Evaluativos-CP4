@@ -12,13 +12,21 @@ namespace Bolsa.Notificaciones.Entrega;
 /// Cada envío va aislado en su propio try/catch: si el canal falla, el error se
 /// registra, la notificación se reencola con espera creciente (backoff) y, al
 /// agotar <see cref="MaxIntentos"/>, pasa a fallo definitivo (<i>dead
-/// letter</i>). Aquí todo eso vive en memoria; la restricción E9-R lo persiste
-/// para garantizar la entrega at-least-once.
+/// letter</i>).
+///
+/// La restricción E9-R añade la persistencia: si el repositorio que recibe
+/// implementa <see cref="IRepositorioOutbox"/> (por ejemplo
+/// <see cref="RepositorioPersistente"/>), la notificación se escribe en el
+/// disco <em>antes</em> de encolarse y se marca como entregada solo cuando el
+/// canal confirma. Con eso la entrega es at-least-once y las pendientes se
+/// recuperan al reiniciar con <see cref="RecuperarPendientes"/>. Con un
+/// repositorio en memoria, el comportamiento es exactamente el del inciso c).
 /// </summary>
 public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDisposable
 {
     private readonly Channel<EnvioPendiente> _cola;
     private readonly IRepositorioNotificaciones _repositorio;
+    private readonly IRepositorioOutbox? _outbox;
     private readonly IRegistroFallos _registro;
     private readonly Task[] _consumidores;
     private readonly TimeSpan _esperaBase;
@@ -52,6 +60,10 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
         ArgumentOutOfRangeException.ThrowIfLessThan(maxIntentos, 1);
 
         _repositorio = repositorio;
+        // La persistencia (restricción E9-R) es una capacidad opcional del
+        // repositorio: si el que se pasa sabe guardar pendientes, se usa; si
+        // no, el despachador se comporta exactamente como en el inciso c).
+        _outbox = repositorio as IRepositorioOutbox;
         _registro = registro ?? new RegistroFallos();
         _esperaBase = esperaBase ?? TimeSpan.FromMilliseconds(50);
         Capacidad = capacidad;
@@ -115,10 +127,17 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
     /// Deja la notificación en la cola y regresa de inmediato: es lo único que
     /// paga el hilo que cambió el precio. Si la cola está llena se rechaza y se
     /// registra, porque esperar aquí sería volver a bloquear al sujeto.
+    ///
+    /// Con un repositorio que implemente <see cref="IRepositorioOutbox"/> la
+    /// notificación se escribe en el disco <em>antes</em> de encolarse (patrón
+    /// <i>outbox</i>): si el proceso se cae después de este punto, el aviso
+    /// sigue persistido y se reintentará al reiniciar.
     /// </summary>
     public void Encolar(Notificacion notificacion)
     {
         ArgumentNullException.ThrowIfNull(notificacion);
+
+        _outbox?.RegistrarPendiente(notificacion, intentos: 0);
 
         Interlocked.Increment(ref _enProceso);
         if (_cola.Writer.TryWrite(new EnvioPendiente(notificacion, Intentos: 0)))
@@ -131,6 +150,40 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
         _registro.Registrar(
             nameof(DespachadorAsincrono),
             $"cola llena ({Capacidad}); se rechaza el aviso de {notificacion.Cliente.Contacto}");
+    }
+
+    /// <summary>
+    /// Recupera del outbox los avisos pendientes de envío y los vuelve a encolar
+    /// con el contador de intentos que tenían guardado. Es lo que se llama al
+    /// arrancar: con eso, una notificación creada antes de la caída no se
+    /// pierde. Devuelve cuántas se recuperaron.
+    /// </summary>
+    public int RecuperarPendientes()
+    {
+        if (_outbox is null)
+        {
+            return 0;
+        }
+
+        IReadOnlyList<EnvioPendiente> pendientes = _outbox.PendientesParaReintentar();
+        int recuperadas = 0;
+
+        foreach (EnvioPendiente envio in pendientes)
+        {
+            if (_cola.Writer.TryWrite(envio))
+            {
+                Interlocked.Increment(ref _enProceso);
+                recuperadas++;
+            }
+            else
+            {
+                _registro.Registrar(
+                    nameof(DespachadorAsincrono),
+                    $"cola llena ({Capacidad}); el aviso pendiente de {envio.Notificacion.Cliente.Contacto} queda en el outbox para el próximo arranque");
+            }
+        }
+
+        return recuperadas;
     }
 
     /// <summary>
@@ -184,6 +237,10 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
         {
             await envio.Notificacion.Cliente.Canal.EnviarAsync(envio.Notificacion);
             _repositorio.Guardar(envio.Notificacion);
+
+            // Solo ahora la notificación está entregada de verdad: antes de
+            // este punto seguía en el outbox como pendiente.
+            _outbox?.MarcarEntregada(envio.Notificacion.Id);
             Interlocked.Increment(ref _entregadas);
             Interlocked.Decrement(ref _enProceso);
         }
@@ -200,10 +257,13 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
 
             if (intentos >= MaxIntentos)
             {
-                DarPorPerdida(envio.Notificacion);
+                // Dead letter: el aviso no se borra, queda registrado con su
+                // último error para que un operador pueda reintentarlo.
+                DarPorPerdida(envio.Notificacion, intentos, error.Message);
                 return;
             }
 
+            _outbox?.MarcarReintento(envio.Notificacion.Id, intentos, error.Message);
             Reprogramar(envio with { Intentos = intentos });
         }
     }
@@ -230,7 +290,10 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
                         nameof(DespachadorAsincrono),
                         $"no se pudo reencolar el aviso de {envio.Notificacion.Cliente.Contacto}; la cola está llena o cerrada, se descarta");
 
-                    DarPorPerdida(envio.Notificacion);
+                    DarPorPerdida(
+                        envio.Notificacion,
+                        envio.Intentos,
+                        "no se pudo reencolar: la cola está llena o cerrada");
                 }
             },
             CancellationToken.None,
@@ -252,8 +315,12 @@ public sealed class DespachadorAsincrono : IDespachadorNotificaciones, IAsyncDis
             });
     }
 
-    private void DarPorPerdida(Notificacion notificacion)
+    private void DarPorPerdida(Notificacion notificacion, int intentos, string motivo)
     {
+        // Dead letter: el aviso no se borra, queda registrado con su último
+        // error para que un operador pueda reintentarlo.
+        _outbox?.MarcarFalloDefinitivo(notificacion.Id, intentos, motivo);
+
         lock (_bloqueo)
         {
             _fallosDefinitivos.Add(notificacion);
